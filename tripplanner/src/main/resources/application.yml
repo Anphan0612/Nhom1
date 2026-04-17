@@ -24,4 +24,4 @@ server:
 
 9router:
   api:
-    key: ${9ROUTER_API_KEY:sk-c2147761fa597b56-nkczpl-cb52299c}
+    key: ${9ROUTER_API_KEY}
