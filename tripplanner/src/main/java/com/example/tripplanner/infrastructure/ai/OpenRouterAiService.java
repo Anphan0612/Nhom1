@@ -15,24 +15,26 @@ public class OpenRouterAiService implements AiServicePort {
 
     private final WebClient webClient;
 
-    @Value("${openrouter.api.key}")
+    @Value("${9router.api.key}")
     private String apiKey;
 
     @Override
     public Map<String, Object> callAi(String prompt) {
         Map<String, Object> requestBody = Map.of(
-            "model", "google/gemma-4-26b-a4b-it:free",
+            "model", "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
             "messages", List.of(
                 Map.of("role", "user", "content", prompt)
-            )
+            ),
+            "stream", false
         );
 
         return webClient.post()
-            .uri("https://openrouter.ai/api/v1/chat/completions")
+            .uri("http://localhost:20128/v1/chat/completions")
             .header("Authorization", "Bearer " + apiKey)
             .header("HTTP-Referer", "http://localhost:8081")
             .header("X-Title", "TripPlanner")
             .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
             .bodyValue(requestBody)
             .retrieve()
             .bodyToMono(Map.class)

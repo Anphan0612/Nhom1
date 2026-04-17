@@ -22,6 +22,6 @@ spring:
 server:
   port: 8081
 
-openrouter:
+9router:
   api:
-    key: ${OPENROUTER_API_KEY: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}
+    key: ${9ROUTER_API_KEY:sk-c2147761fa597b56-nkczpl-cb52299c}
