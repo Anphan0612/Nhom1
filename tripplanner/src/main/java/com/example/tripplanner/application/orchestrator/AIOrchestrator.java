@@ -1,124 +1,195 @@
-// 3. AIOrchestrator.java
 package com.example.tripplanner.application.orchestrator;
 
+import com.example.tripplanner.application.dto.GenerateRequest;
+import com.example.tripplanner.application.dto.RegenerateRequest;
 import com.example.tripplanner.application.validator.ValidationResult;
-import com.example.tripplanner.application.validator.Validator;
-import com.example.tripplanner.domain.model.AiLog;
+import com.example.tripplanner.application.validator.AiResponseValidator;
+import com.example.tripplanner.domain.model.*;
 import com.example.tripplanner.domain.port.AiLogRepository;
 import com.example.tripplanner.domain.port.AiServicePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
+import org.springframework.stereotype.Service;
 
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
 public class AIOrchestrator {
 
+    private static final int MAX_RETRIES = 3;
+    private static final String DEFAULT_PROMPT_VERSION = "v1.0";
+
     private final AiServicePort aiServicePort;
     private final AiLogRepository aiLogRepository;
-    private final Validator validator;
+    private final AiResponseValidator validator;
 
-    public String orchestrate(String destination, int days) {
-        String originalPrompt = String.format("Generate a %d-day trip plan in JSON for %s. Return ONLY JSON.", days, destination);
-        String currentPrompt = originalPrompt;
-        String finalContent = null;
-        String errorMessage = null;
-
-        int totalPromptTokens = 0;
-        int totalCompletionTokens = 0;
-        String model = null;
-        int retryCount = 0;
-        boolean isValid = false;
-        String firstValidationType = null;
-        
-        long startTime = System.currentTimeMillis();
-
-        for (int i = 0; i < 3; i++) {
-            retryCount = i;
-            log.info("--- 🚀 Gọi AI Lần {} ---", (i + 1));
-            log.info("📩 Prompt gửi đi: {}", currentPrompt);
-
-            Map<String, Object> response = aiServicePort.callAi(currentPrompt);
-
-            // Extracting data from raw map
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
-            @SuppressWarnings("unchecked")
-            Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
-            finalContent = (String) message.get("content");
-
-            @SuppressWarnings("unchecked")
-            Map<String, Object> usage = (Map<String, Object>) response.get("usage");
-            totalPromptTokens += (Integer) usage.get("prompt_tokens");
-            totalCompletionTokens += (Integer) usage.get("completion_tokens");
-            model = (String) response.get("model");
-
-            log.info("📦 AI Trả về độ dài nội dung: {} ký tự", finalContent != null ? finalContent.length() : 0);
-
-            ValidationResult validationResult = validator.validate(finalContent);
-
-            if (validationResult.isValid()) {
-                long duration = System.currentTimeMillis() - startTime;
-                log.info("✅ Validate THÀNH CÔNG! Hợp lệ JSON và Logic. Tokens: {}, Retries: {}, Time: {}ms", 
-                         (totalPromptTokens + totalCompletionTokens), retryCount, duration);
-                isValid = true;
-                break;
-            } else {
-                errorMessage = validationResult.getErrorMessage();
-                
-                if (firstValidationType == null) {
-                    if (errorMessage.startsWith("Invalid JSON")) firstValidationType = "FORMAT";
-                    else if (errorMessage.startsWith("Schema error")) firstValidationType = "SCHEMA";
-                    else if (errorMessage.startsWith("Business error")) firstValidationType = "BUSINESS";
-                }
-                
-                log.warn("❌ Validate THẤT BẠI: {} (Retry: {})", errorMessage, retryCount);
-                currentPrompt = buildRetryPrompt(errorMessage, finalContent);
-                log.info("🔄 Thu thập lỗi, đang Build lại Prompt để Retry...");
-            }
-        }
-        
-        long executionTime = System.currentTimeMillis() - startTime;
-        
-        if (!isValid) {
-            log.error("❌ AI Orchestration failed after {} retries. Final Error: {}", retryCount, errorMessage);
-        }
-
-        AiLog log = AiLog.builder()
-                .userInput(String.format("Destination: %s, Days: %d", destination, days))
-                .prompt(originalPrompt)
-                .response(finalContent)
-                .model(model)
-                .promptTokens(totalPromptTokens)
-                .completionTokens(totalCompletionTokens)
-                .totalTokens(totalPromptTokens + totalCompletionTokens)
-                .status(isValid ? "SUCCESS" : "FAILED")
-                .retryCount(retryCount)
-                .errorMessage(isValid ? null : errorMessage)
-                .validationType(firstValidationType)
-                .executionTime(executionTime)
-                .promptVersion("v1.0")
-                .build();
-
-        aiLogRepository.save(log);
-
-        return finalContent;
+    /**
+     * First-time AI trip generation.
+     * @return persisted AiLog ID for traceability
+     */
+    public Long orchestrate(Trip trip, GenerateRequest request) {
+        String preferences = request != null ? nullToEmpty(request.getPreferences()) : "";
+        String promptVersion = request != null ? nullToDefault(request.getPromptVersion()) : DEFAULT_PROMPT_VERSION;
+        String prompt = buildPrompt(trip, preferences);
+        return runPipeline(trip, prompt, promptVersion, null);
     }
 
-    private String buildRetryPrompt(String errorMessage, String previousResponse) {
-        String instruction = "";
-        if (errorMessage.startsWith("Invalid JSON")) {
-            instruction = "Fix this JSON and return ONLY valid JSON";
-        } else if (errorMessage.startsWith("Schema error")) {
-            instruction = "Ensure JSON matches required structure";
-        } else if (errorMessage.startsWith("Business error")) {
-            instruction = "Ensure each day has activities and cost > 0";
+    /**
+     * Re-run AI generation with optional user feedback.
+     * @return persisted AiLog ID for traceability
+     */
+    public Long orchestrateRegenerate(Trip trip, RegenerateRequest request) {
+        String feedback = request != null ? nullToEmpty(request.getFeedback()) : "";
+        String promptVersion = request != null ? nullToDefault(request.getPromptVersion()) : DEFAULT_PROMPT_VERSION;
+        String prompt = buildPrompt(trip, feedback);
+        return runPipeline(trip, prompt, promptVersion, feedback);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Core pipeline
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private Long runPipeline(Trip trip, String originalPrompt, String promptVersion, String userFeedback) {
+        PipelineState state = new PipelineState(originalPrompt);
+        long startTime = System.currentTimeMillis();
+
+        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            state.retryCount = attempt;
+            log.info("AI call attempt {}/{} for trip={}", attempt + 1, MAX_RETRIES, trip.getId());
+
+            AiResponse aiResponse = aiServicePort.callAi(state.currentPrompt);
+            state.accumulate(aiResponse);
+
+            ValidationResult validation = validator.validate(aiResponse.content());
+            if (validation.isValid()) {
+                log.info("Validation passed on attempt {}. totalTokens={}", attempt + 1, state.totalTokens());
+                state.markSuccess();
+                break;
+            }
+
+            log.warn("Validation failed attempt {}: {}", attempt + 1, validation.getErrorMessage());
+            state.recordError(validation.getErrorMessage());
+            state.currentPrompt = buildRetryPrompt(validation.getErrorMessage(), aiResponse.content());
         }
 
-        return String.format("%s. Fix this JSON. Error: %s. JSON: %s", instruction, errorMessage, previousResponse);
+        long executionTime = System.currentTimeMillis() - startTime;
+        AiLog saved = saveLog(trip, originalPrompt, state, userFeedback, promptVersion, executionTime);
+        return saved.getId();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Prompt builders
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private String buildPrompt(Trip trip, String extra) {
+        int days = (int) (trip.getEndDate().toEpochDay() - trip.getStartDate().toEpochDay()) + 1;
+        String base = String.format(
+                "Generate a %d-day trip plan in JSON for %s from %s to %s. Budget: %s. Return ONLY JSON.",
+                days, trip.getDestination(), trip.getStartDate(), trip.getEndDate(), trip.getBudget()
+        );
+        return !extra.isBlank() ? base + " Extra context: " + extra : base;
+    }
+
+    private String buildRetryPrompt(String errorMessage, String previousContent) {
+        String instruction = switch (detectErrorType(errorMessage)) {
+            case FORMAT -> "Fix this JSON and return ONLY valid JSON";
+            case SCHEMA -> "Ensure JSON matches the required structure";
+            case BUSINESS -> "Ensure each day has activities and cost > 0";
+            default -> "Fix the issues in this JSON";
+        };
+        return String.format("%s. Error: %s. Previous JSON: %s", instruction, errorMessage, previousContent);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // AiLog persistence
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private AiLog saveLog(Trip trip, String originalPrompt, PipelineState state,
+                          String userFeedback, String promptVersion, long executionTime) {
+        String userInput = buildUserInput(trip, userFeedback);
+
+        AiLog aiLog = AiLog.builder()
+                .tripId(trip.getId().toString())
+                .userInput(userInput)
+                .prompt(originalPrompt)
+                .response(state.lastContent)
+                .model(state.model)
+                .promptTokens(state.totalPromptTokens)
+                .completionTokens(state.totalCompletionTokens)
+                .totalTokens(state.totalTokens())
+                .status(state.isSuccess ? AiLogStatus.SUCCESS : AiLogStatus.FAILED)
+                .retryCount(state.retryCount)
+                .errorMessage(state.isSuccess ? null : state.lastErrorMessage)
+                .validationType(state.firstValidationType)
+                .executionTime(executionTime)
+                .promptVersion(promptVersion)
+                .build();
+
+        return aiLogRepository.save(aiLog);
+    }
+
+    private String buildUserInput(Trip trip, String feedback) {
+        String base = String.format("Trip: %s → %s (%s to %s)",
+                trip.getTitle(), trip.getDestination(), trip.getStartDate(), trip.getEndDate());
+        return (feedback != null && !feedback.isBlank()) ? base + " | Feedback: " + feedback : base;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private ValidationType detectErrorType(String errorMessage) {
+        if (errorMessage == null) return ValidationType.NONE;
+        if (errorMessage.startsWith("Invalid JSON")) return ValidationType.FORMAT;
+        if (errorMessage.startsWith("Schema error")) return ValidationType.SCHEMA;
+        if (errorMessage.startsWith("Business error")) return ValidationType.BUSINESS;
+        return ValidationType.NONE;
+    }
+
+    private String nullToEmpty(String value) {
+        return value != null ? value : "";
+    }
+
+    private String nullToDefault(String value) {
+        return value != null ? value : DEFAULT_PROMPT_VERSION;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Pipeline state (local accumulator — not a domain object)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private static class PipelineState {
+        String currentPrompt;
+        String lastContent = null;
+        String lastErrorMessage = null;
+        String model = null;
+        int totalPromptTokens = 0;
+        int totalCompletionTokens = 0;
+        int retryCount = 0;
+        boolean isSuccess = false;
+        ValidationType firstValidationType = null;
+
+        PipelineState(String initialPrompt) {
+            this.currentPrompt = initialPrompt;
+        }
+
+        void accumulate(AiResponse response) {
+            this.lastContent = response.content();
+            this.model = response.model();
+            this.totalPromptTokens += response.promptTokens();
+            this.totalCompletionTokens += response.completionTokens();
+        }
+
+        void markSuccess() {
+            this.isSuccess = true;
+        }
+
+        void recordError(String errorMessage) {
+            this.lastErrorMessage = errorMessage;
+        }
+
+        int totalTokens() {
+            return totalPromptTokens + totalCompletionTokens;
+        }
     }
 }

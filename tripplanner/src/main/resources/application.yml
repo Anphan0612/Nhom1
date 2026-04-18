@@ -13,15 +13,14 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-    show-sql: true
-
-  h2:
-    console:
-      enabled: true
+    show-sql: false
 
 server:
   port: 8081
 
-9router:
+router9:
   api:
-    key: ${9ROUTER_API_KEY}
+    key: ${9ROUTER_API_KEY:}
+    url: http://localhost:20128/v1/chat/completions
+
+

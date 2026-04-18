@@ -1,25 +1,51 @@
 package com.example.tripplanner.interfaces.controller;
 
-import com.example.tripplanner.application.dto.TripRequest;
-import com.example.tripplanner.application.dto.TripResponse;
-import com.example.tripplanner.application.usecase.GenerateTripPlanUseCase;
-
+import com.example.tripplanner.application.dto.*;
+import com.example.tripplanner.application.usecase.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/trip")
+@RequestMapping("/api/v1/trips")
 @RequiredArgsConstructor
 public class TripController {
 
+    private final CreateTripUseCase createTripUseCase;
+    private final GetTripUseCase getTripUseCase;
+    private final UpdateTripUseCase updateTripUseCase;
     private final GenerateTripPlanUseCase generateTripPlanUseCase;
+    private final RegenerateTripPlanUseCase regenerateTripPlanUseCase;
 
-    @PostMapping("/generate")
-    public TripResponse generate(@Valid@RequestBody TripRequest request) {
-        return generateTripPlanUseCase.execute(request);
+    @PostMapping
+    public ResponseEntity<TripResponse> createTrip(@Valid @RequestBody TripRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(createTripUseCase.execute(request));
+    }
+
+    @GetMapping("/{tripId}")
+    public ResponseEntity<TripResponse> getTripById(@PathVariable UUID tripId) {
+        return ResponseEntity.ok(getTripUseCase.execute(tripId));
+    }
+
+    @PutMapping("/{tripId}")
+    public ResponseEntity<TripResponse> updateTrip(@PathVariable UUID tripId,
+                                                    @Valid @RequestBody TripUpdateRequest request) {
+        return ResponseEntity.ok(updateTripUseCase.execute(tripId, request));
+    }
+
+    @PostMapping("/{tripId}/generate")
+    public ResponseEntity<GenerateResponse> generatePlan(@PathVariable UUID tripId,
+                                                          @RequestBody(required = false) GenerateRequest request) {
+        return ResponseEntity.ok(generateTripPlanUseCase.execute(tripId, request));
+    }
+
+    @PostMapping("/{tripId}/regenerate")
+    public ResponseEntity<GenerateResponse> regeneratePlan(@PathVariable UUID tripId,
+                                                            @RequestBody(required = false) RegenerateRequest request) {
+        return ResponseEntity.ok(regenerateTripPlanUseCase.execute(tripId, request));
     }
 }

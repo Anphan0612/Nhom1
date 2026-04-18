@@ -1,6 +1,7 @@
 package com.example.tripplanner.application.service;
 
 import com.example.tripplanner.application.dto.RetryStatsDto;
+import com.example.tripplanner.domain.model.AiLogStatus;
 import com.example.tripplanner.domain.port.AiLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,10 @@ public class AnalyticsService {
     public double getSuccessRate() {
         long total = aiLogRepository.countTotal();
         if (total == 0) return 0.0;
-        long successCount = aiLogRepository.countByStatus("SUCCESS");
+        long successCount = aiLogRepository.countByStatus(AiLogStatus.SUCCESS);
         return (double) successCount / total * 100.0;
     }
+
 
     public double getAverageTokenUsage() {
         Double avgTokens = aiLogRepository.getAverageTotalTokens();

@@ -1,11 +1,12 @@
 package com.example.tripplanner.application.usecase;
 
-import com.example.tripplanner.application.dto.GenerateRequest;
 import com.example.tripplanner.application.dto.GenerateResponse;
+import com.example.tripplanner.application.dto.RegenerateRequest;
 import com.example.tripplanner.application.mapper.TripMapper;
 import com.example.tripplanner.application.orchestrator.AIOrchestrator;
 import com.example.tripplanner.domain.model.Trip;
 import com.example.tripplanner.domain.model.TripStatus;
+import com.example.tripplanner.domain.port.ItineraryRepository;
 import com.example.tripplanner.domain.port.TripRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +19,21 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class GenerateTripPlanUseCase {
+public class RegenerateTripPlanUseCase {
 
     private final AIOrchestrator orchestrator;
     private final TripRepository tripRepository;
+    private final ItineraryRepository itineraryRepository;
 
     @Transactional
-    public GenerateResponse execute(UUID tripId, GenerateRequest request) {
+    public GenerateResponse execute(UUID tripId, RegenerateRequest request) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + tripId));
 
-        Long aiLogId = orchestrator.orchestrate(trip, request);
+        itineraryRepository.deleteByTripId(tripId);
+        trip.getItineraries().clear();
+
+        Long aiLogId = orchestrator.orchestrateRegenerate(trip, request);
 
         trip.setStatus(TripStatus.GENERATED);
         tripRepository.save(trip);

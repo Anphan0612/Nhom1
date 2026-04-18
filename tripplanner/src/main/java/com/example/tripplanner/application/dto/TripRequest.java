@@ -1,18 +1,31 @@
 package com.example.tripplanner.application.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class TripRequest {
-    @NotBlank(message = "Destination cannot be empty")
+
+    @NotNull(message = "userId is required")
+    private UUID userId;
+
+    @NotBlank(message = "title is required")
+    @Size(min = 3, max = 200)
+    private String title;
+
+    @NotBlank(message = "destination is required")
+    @Size(min = 2, max = 300)
     private String destination;
-    
-    @Min(value = 1, message = "Trip must be at least 1 day")
-    private int days;
+
+    @NotNull(message = "startDate is required")
+    private LocalDate startDate;
+
+    @NotNull(message = "endDate is required")
+    private LocalDate endDate;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    private BigDecimal budget;
 }
