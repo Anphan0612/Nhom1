@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +18,7 @@ public class TripController {
 
     private final CreateTripUseCase createTripUseCase;
     private final GetTripUseCase getTripUseCase;
+    private final GetTripsByUserUseCase getTripsByUserUseCase;
     private final UpdateTripUseCase updateTripUseCase;
     private final GenerateTripPlanUseCase generateTripPlanUseCase;
     private final RegenerateTripPlanUseCase regenerateTripPlanUseCase;
@@ -24,6 +26,11 @@ public class TripController {
     @PostMapping
     public ResponseEntity<TripResponse> createTrip(@Valid @RequestBody TripRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createTripUseCase.execute(request));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TripResponse>> getTripsByUser(@PathVariable UUID userId) {
+        return ResponseEntity.ok(getTripsByUserUseCase.execute(userId));
     }
 
     @GetMapping("/{tripId}")
@@ -49,3 +56,4 @@ public class TripController {
         return ResponseEntity.ok(regenerateTripPlanUseCase.execute(tripId, request));
     }
 }
+

@@ -2,18 +2,22 @@ spring:
   application:
     name: tripplanner
   
-  # 💾 H2 Database Configuration (For Development)
+  # 🐬 MySQL Database Configuration
   datasource:
-    url: jdbc:h2:mem:tripplanner_db
-    driverClassName: org.h2.Driver
-    username: sa
-    password: ""
+    url: jdbc:mysql://localhost:3306/trip?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:1234}
   
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
+    properties:
+      hibernate:
+        type:
+          preferred_uuid_jdbc_type: CHAR
 
 server:
   port: 8081

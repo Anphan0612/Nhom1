@@ -5,6 +5,7 @@ import com.example.tripplanner.domain.port.TripRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,5 +28,10 @@ public class TripRepositoryImpl implements TripRepository {
     @Override
     public boolean existsById(UUID id) {
         return jpaRepository.existsById(id);
+    }
+
+    @Override
+    public List<Trip> findByUserId(UUID userId) {
+        return jpaRepository.findByUserId(userId);
     }
 }
