@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { tripApi, aiApi } from '../services/api';
 import { TEST_USER_ID, BUDGET_VALUES } from '../types/trip';
 
@@ -27,10 +27,11 @@ const STYLE_OPTIONS: { icon: string; text: TravelStyle; bgClass: string }[] = [
   { icon: 'nightlife', text: 'Về đêm', bgClass: 'bg-surface-container-highest text-on-surface' },
 ];
 
-const VN_DESTINATIONS = ['Hội An', 'Đà Lạt', 'Phú Quốc', 'Hạ Long', 'Đà Nẵng', 'Hà Nội', 'Sapa'];
+const TRAVEL_STYLES = STYLE_OPTIONS.map(o => o.text);
 
 export default function PlanTrip() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Form state
   const [origin, setOrigin] = useState('');
@@ -40,6 +41,32 @@ export default function PlanTrip() {
   const [budgetSlider, setBudgetSlider] = useState<BudgetSlider>(2);
   const [travelers, setTravelers] = useState(2);
   const [selectedStyles, setSelectedStyles] = useState<TravelStyle[]>(['Thư giãn']);
+
+  // Handle incoming state from Explore page
+  useEffect(() => {
+    const state = location.state as { 
+      destination?: string; 
+      durationDays?: number; 
+      tags?: string[];
+      budget?: number;
+    };
+
+    if (state) {
+      if (state.destination) setDestination(state.destination);
+      if (state.tags) {
+        // Map explore tags to TravelStyles
+        const validStyles = state.tags.filter(t => 
+          TRAVEL_STYLES.includes(t as TravelStyle)
+        ) as TravelStyle[];
+        if (validStyles.length > 0) setSelectedStyles(validStyles);
+      }
+      if (state.budget) {
+        if (state.budget <= 1500000) setBudgetSlider(1);
+        else if (state.budget <= 5000000) setBudgetSlider(2);
+        else setBudgetSlider(3);
+      }
+    }
+  }, [location.state]);
 
   // AI Assist state
   const [aiDescription, setAiDescription] = useState('');
@@ -171,32 +198,35 @@ export default function PlanTrip() {
             </div>
 
             {/* AI Assist Box */}
-            <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10 space-y-4">
+            <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                <h3 className="text-sm font-bold text-primary uppercase tracking-widest">Trợ lý AI Điền Form</h3>
+                <h3 className="text-sm font-bold text-primary uppercase tracking-widest">Trợ lý AI</h3>
               </div>
-              <div className="relative">
+              <div className="relative group">
                 <textarea
                   value={aiDescription}
                   onChange={(e) => setAiDescription(e.target.value)}
                   placeholder="Ví dụ: Tôi muốn đi du lịch Đà Lạt 3 ngày vào cuối tuần này với người yêu, mức giá trung bình, thích ăn uống và chụp ảnh..."
-                  className="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all min-h-[100px] resize-none outline-none"
+                  className="w-full bg-surface-container-highest/50 border-none rounded-2xl p-6 text-sm focus:ring-2 focus:ring-primary/20 transition-all min-h-[120px] resize-none outline-none pr-16"
                 />
                 <button
                   onClick={handleAiParse}
                   disabled={isParsing || !aiDescription.trim()}
-                  className="absolute bottom-3 right-3 bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all"
+                  title={isParsing ? 'Đang phân tích...' : 'Gửi cho trợ lý'}
+                  className="absolute bottom-4 right-4 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all z-10"
                 >
                   {isParsing ? (
                     <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
                   ) : (
                     <span className="material-symbols-outlined text-sm">send</span>
                   )}
-                  {isParsing ? 'Đang phân tích...' : 'Điền nhanh'}
                 </button>
               </div>
-              <p className="text-[10px] text-on-surface-variant italic">Mô tả kỳ nghỉ của bạn bằng ngôn ngữ tự nhiên, AI sẽ tự động điền các ô phía dưới.</p>
+              <p className="text-[10px] text-on-surface-variant italic pl-2 opacity-70 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px]">tips_and_updates</span>
+                Mô tả kỳ nghỉ bằng tiếng Việt tự nhiên, AI sẽ tự động điền các ô phía dưới.
+              </p>
             </div>
 
             {/* Error banner */}
@@ -232,18 +262,6 @@ export default function PlanTrip() {
                     placeholder="vd. Hội An, Việt Nam"
                     className="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-lg border-none focus:ring-0 focus:bg-surface-container-lowest focus:border-b-2 focus:border-primary transition-all placeholder:text-outline/60 outline-none"
                   />
-                </div>
-                {/* Quick suggestions */}
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {VN_DESTINATIONS.slice(0, 4).map(d => (
-                    <button
-                      key={d}
-                      onClick={() => setDestination(d + ', Việt Nam')}
-                      className="text-xs px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed hover:opacity-80 transition-opacity font-medium"
-                    >
-                      {d}
-                    </button>
-                  ))}
                 </div>
               </div>
             </div>
@@ -305,6 +323,7 @@ export default function PlanTrip() {
                   <label className="block text-sm font-semibold text-on-surface">Số người</label>
                   <div className="flex items-center justify-between bg-surface-container-low p-4 rounded-xl">
                     <button
+                      type="button"
                       onClick={() => setTravelers(t => Math.max(1, t - 1))}
                       className="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm hover:scale-105 active:scale-95 transition-all"
                     >
@@ -315,6 +334,7 @@ export default function PlanTrip() {
                       <span className="text-[0.6875rem] text-outline font-medium">Người</span>
                     </div>
                     <button
+                      type="button"
                       onClick={() => setTravelers(t => Math.min(20, t + 1))}
                       className="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm hover:scale-105 active:scale-95 transition-all"
                     >
@@ -333,6 +353,7 @@ export default function PlanTrip() {
                   return (
                     <button
                       key={style.text}
+                      type="button"
                       onClick={() => toggleStyle(style.text)}
                       className={`flex flex-col items-center gap-3 p-6 rounded-xl border transition-all group ${
                         isSelected
@@ -371,63 +392,65 @@ export default function PlanTrip() {
                   </>
                 )}
               </button>
-
-              {isGenerating ? (
-                <div className="flex items-center gap-3 text-on-surface-variant">
-                  <div className="flex gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce"></div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '-0.15s' }}></div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '-0.3s' }}></div>
-                  </div>
-                  <span className="text-xs font-medium tracking-wide uppercase">AI đang phân tích và lên kế hoạch...</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 text-on-surface-variant opacity-60">
-                  <span className="material-symbols-outlined text-sm">info</span>
-                  <span className="text-xs font-medium tracking-wide uppercase">Trợ lý AI sẵn sàng</span>
-                </div>
-              )}
             </div>
           </section>
         </div>
 
         {/* Contextual Sidebar (Right) */}
         <div className="md:col-span-4 space-y-8">
-          <div className="bg-surface-container-low rounded-xl p-8 space-y-6">
-            <h3 className="text-lg font-bold text-on-surface">Điểm đến nổi bật</h3>
-            <div className="relative h-48 w-full rounded-xl overflow-hidden mb-4">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Hoi_An_Covered_Bridge.jpg/1280px-Hoi_An_Covered_Bridge.jpg"
-                alt="Hội An"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-4">
-                <span className="text-white text-xs font-bold uppercase tracking-widest">Đang thịnh hành</span>
-                <span className="text-white font-bold text-xl">Hội An, Việt Nam</span>
-              </div>
+          <div className="bg-surface-container-low rounded-2xl p-8 space-y-8">
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold text-on-surface">Khám phá Việt Nam</h3>
+              <p className="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Điểm đến đề xuất</p>
             </div>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary text-sm mt-0.5">verified_user</span>
-                <p className="text-sm text-on-surface-variant">Gợi ý cá nhân hóa dựa trên <span className="font-semibold text-on-surface">phong cách của bạn</span>.</p>
+
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { name: 'Hạ Long', province: 'Quảng Ninh', img: '/assets/destinations/halong.png' },
+                { name: 'Đà Lạt', province: 'Lâm Đồng', img: '/assets/destinations/dalat.png' },
+                { name: 'Sapa', province: 'Lào Cai', img: '/assets/destinations/sapa.png' },
+                { name: 'Đà Nẵng', province: 'Đà Nẵng', img: '/assets/destinations/danang.png' }
+              ].map((loc) => (
+                <button
+                  key={loc.name}
+                  onClick={() => setDestination(`${loc.name}, Việt Nam`)}
+                  className="group relative h-32 w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all active:scale-95"
+                >
+                  <img
+                    src={loc.img}
+                    alt={loc.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4 text-left">
+                    <span className="text-white font-bold text-lg leading-tight group-hover:text-primary transition-colors">{loc.name}</span>
+                    <span className="text-white/70 text-[10px] font-medium uppercase tracking-widest">{loc.province}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <ul className="space-y-4 pt-4 border-t border-outline-variant/30">
+              <li className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-primary text-sm">verified_user</span>
+                </div>
+                <p className="text-xs text-on-surface-variant leading-relaxed">Gợi ý cá nhân hóa dựa trên <span className="font-semibold text-on-surface">phong cách của bạn</span>.</p>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary text-sm mt-0.5">eco</span>
-                <p className="text-sm text-on-surface-variant">Ưu tiên phương tiện thân thiện môi trường và trải nghiệm địa phương.</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary text-sm mt-0.5">currency_exchange</span>
-                <p className="text-sm text-on-surface-variant">Budget được tính toán phù hợp với giá cả Việt Nam.</p>
+              <li className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-primary text-sm">eco</span>
+                </div>
+                <p className="text-xs text-on-surface-variant leading-relaxed">Ưu tiên trải nghiệm địa phương và điểm đến xanh.</p>
               </li>
             </ul>
           </div>
 
           {/* Help Card */}
-          <div className="p-8 bg-surface-container-lowest border border-outline-variant/20 rounded-xl">
-            <h4 className="font-bold mb-2">Cần tư vấn thêm?</h4>
-            <p className="text-sm text-on-surface-variant mb-6">AI của chúng tôi sẽ giúp bạn tìm những điểm ẩn phù hợp với cá tính.</p>
-            <button className="text-primary font-bold text-sm flex items-center gap-2 hover:gap-3 transition-all">
-              Chat với Trợ lý <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          <div className="p-8 bg-primary/5 rounded-2xl border border-primary/10">
+            <h4 className="font-bold text-on-surface mb-2">Bạn chưa biết đi đâu?</h4>
+            <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">Hãy để AI của chúng tôi gợi ý những điểm đến "ẩn mình" cực chất tại Việt Nam cho bạn.</p>
+            <button className="w-full py-3 px-4 bg-surface-container-lowest text-primary border border-primary/20 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all shadow-sm">
+              Tìm cảm hứng mới <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
           </div>
         </div>

@@ -79,3 +79,43 @@ export const aiApi = {
     apiClient.post('/ai/parse-trip', { description }).then(r => r.data),
 };
 
+// ── Explore endpoints ────────────────────────────────────────────────────────
+
+export interface ExploreItem {
+  id: string;
+  title: string;
+  destination: string;
+  type: 'PLACE' | 'EXPERIENCE' | 'TEMPLATE';
+  tags: string[];
+  minBudget: number;
+  maxBudget: number;
+  durationDays: number;
+  thumbnailUrl: string;
+  popularityScore: number;
+}
+
+export interface ExplorePageResponse {
+  content: ExploreItem[];
+  totalPages: number;
+  totalElements: number;
+}
+
+export const exploreApi = {
+  getAll: (params: {
+    destination?: string;
+    minBudget?: number;
+    maxBudget?: number;
+    durationDays?: number;
+    tags?: string[];
+    page?: number;
+    size?: number;
+  }): Promise<ExplorePageResponse> =>
+    apiClient.get('/explore', { params }).then(r => r.data),
+
+  getTrending: (): Promise<ExploreItem[]> =>
+    apiClient.get('/explore/trending').then(r => r.data),
+
+  getRecommendations: (): Promise<ExploreItem[]> =>
+    apiClient.get('/explore/recommendation').then(r => r.data),
+};
+

@@ -3,6 +3,7 @@ package com.example.tripplanner.infrastructure.persistence;
 import com.example.tripplanner.domain.model.*;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Component
@@ -200,6 +201,39 @@ public class PersistenceMapper {
                 .executionTime(entity.getExecutionTime())
                 .promptVersion(entity.getPromptVersion())
                 .createdAt(entity.getCreatedAt())
+                .build();
+    }
+    // --- ExploreItem Mapping ---
+
+    public ExploreItem toExploreItem(ExploreItemEntity entity) {
+        if (entity == null) return null;
+        return ExploreItem.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .destination(entity.getDestination())
+                .type(entity.getType())
+                .tags(new ArrayList<>(entity.getTags()))
+                .minBudget(entity.getMinBudget())
+                .maxBudget(entity.getMaxBudget())
+                .durationDays(entity.getDurationDays())
+                .thumbnailUrl(entity.getThumbnailUrl())
+                .popularityScore(entity.getPopularityScore())
+                .build();
+    }
+
+    public ExploreItemEntity toExploreItemEntity(ExploreItem domain) {
+        if (domain == null) return null;
+        return ExploreItemEntity.builder()
+                .id(domain.getId())
+                .title(domain.getTitle())
+                .destination(domain.getDestination())
+                .type(domain.getType())
+                .tags(new ArrayList<>(domain.getTags()))
+                .minBudget(domain.getMinBudget())
+                .maxBudget(domain.getMaxBudget())
+                .durationDays(domain.getDurationDays())
+                .thumbnailUrl(domain.getThumbnailUrl())
+                .popularityScore(domain.getPopularityScore())
                 .build();
     }
 }
