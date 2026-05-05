@@ -63,7 +63,7 @@ export default function PlanTrip() {
         if (validStyles.length > 0) setSelectedStyles(validStyles);
       }
       if (state.budget) {
-        if (state.budget <= 1500000) setBudgetSlider(1);
+        if (state.budget <= 2000000) setBudgetSlider(1);
         else if (state.budget <= 5000000) setBudgetSlider(2);
         else setBudgetSlider(3);
       }
@@ -184,6 +184,7 @@ export default function PlanTrip() {
   }, [isGenerating]);
 
   const today = new Date().toISOString().split('T')[0];
+  const maxDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
 
   return (
     <div className="pt-8 pb-24 px-4 flex flex-col items-center min-h-[calc(100vh-64px)]">
@@ -303,7 +304,12 @@ export default function PlanTrip() {
                     type="date"
                     value={startDate}
                     min={today}
-                    onChange={e => setStartDate(e.target.value)}
+                    max={maxDate}
+                    onChange={e => {
+                      const val = e.target.value;
+                      const year = val.split('-')[0];
+                      if (year.length <= 4) setStartDate(val);
+                    }}
                     className="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-lg border-none focus:ring-0 focus:bg-surface-container-lowest focus:border-b-2 focus:border-primary transition-all outline-none"
                   />
                 </div>
@@ -316,7 +322,12 @@ export default function PlanTrip() {
                     type="date"
                     value={endDate}
                     min={startDate || today}
-                    onChange={e => setEndDate(e.target.value)}
+                    max={maxDate}
+                    onChange={e => {
+                      const val = e.target.value;
+                      const year = val.split('-')[0];
+                      if (year.length <= 4) setEndDate(val);
+                    }}
                     className="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-lg border-none focus:ring-0 focus:bg-surface-container-lowest focus:border-b-2 focus:border-primary transition-all outline-none"
                   />
                 </div>

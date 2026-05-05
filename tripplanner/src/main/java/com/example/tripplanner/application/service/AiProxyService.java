@@ -54,7 +54,7 @@ public class AiProxyService {
 
         return ParseTripResult.builder()
                 .destination(destination)
-                .travelers(null) // FastAPI handles grouping, we don't try to parse in Java
+                .travelers(entities.getTravelers())
                 .budgetTier(budgetTier)
                 .travelStyles(travelStyles)
                 .rawSummary(request.getDescription())
@@ -65,7 +65,7 @@ public class AiProxyService {
 
     private String mapBudgetTier(Integer budget) {
         if (budget == null) return null;
-        if (budget <= 1500000) return "budget";
+        if (budget <= 2000000) return "budget";
         if (budget <= 5000000) return "standard";
         return "luxury";
     }

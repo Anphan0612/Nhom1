@@ -19,3 +19,4 @@ public class GetAiLogDetailUseCase {
                 .orElseThrow(() -> new EntityNotFoundException("AI Log not found: " + logId));
     }
 }
+    

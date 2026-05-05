@@ -180,13 +180,13 @@ export default function EditActivityModal({ activity, itineraryId, isOpen, onClo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-on-surface pl-1">Chi phí (USD)</label>
+              <label className="block text-sm font-semibold text-on-surface pl-1">Chi phí (VNĐ)</label>
               <input
                 type="number"
-                value={cost}
+                value={cost === 0 ? '' : cost}
                 onChange={(e) => setCost(Number(e.target.value))}
                 min="0"
-                step="0.01"
+                placeholder="0"
                 className="w-full px-4 py-3 bg-surface-container-highest rounded-lg border-none focus:ring-2 focus:ring-primary/20 transition-all outline-none"
               />
             </div>

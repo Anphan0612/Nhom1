@@ -19,28 +19,15 @@ You are given:
 3. User profile (preferences)
 
 Your job:
-- Fill missing or unclear fields
-- Prefer user profile over guessing
-- Do NOT override valid user input
-- Keep output realistic
-
-Rules:
-- If a field is already valid → keep it
-- If missing → try:
-  1. conversation context
-  2. user profile
-- Do NOT hallucinate unknown destinations
+- Fill missing or unclear fields.
+- For budget: If user says "2 triệu" or "2tr", budget should be 2000000. ALWAYS return the full number in VND.
+- For travelers: If user says "đi một mình" or "solo", return 1. If "cặp đôi", return 2.
+- For dates: If user says "ngày mai", "ngày kia", etc., try to infer duration or leave it for the pipeline.
 
 Input:
-
-User input:
-"{text}"
-
-Current entities:
-{entities_json}
-
-User profile:
-{user_profile_json}
+User input: "{text}"
+Current entities: {entities_json}
+User profile: {user_profile_json}
 
 Return JSON ONLY:
 {{
@@ -48,7 +35,8 @@ Return JSON ONLY:
   "vibe": string or null,
   "budget": number or null,
   "duration_days": number or null,
-  "group_type": string or null
+  "group_type": string or null,
+  "travelers": number or null
 }}"""
 
     ITINERARY_SYSTEM_PROMPT = """You are a travel planner AI.

@@ -152,7 +152,7 @@ public class AIOrchestrator {
                 "          \"location\": \"<string>\",\n" +
                 "          \"startTime\": \"09:00\",\n" +
                 "          \"endTime\": \"10:30\",\n" +
-                "          \"cost\": <number>\n" +
+                "          \"cost\": <number> (ALWAYS provide the full amount in VND, e.g. 500000, NOT 500)\n" +
                 "        }\n" +
                 "      ]\n" +
                 "    }\n" +
@@ -178,7 +178,7 @@ public class AIOrchestrator {
                 "      \"dayNumber\": %d,\n" +
                 "      \"summary\": \"<string>\",\n" +
                 "      \"activities\": [\n" +
-                "        { \"name\": \"\", \"description\": \"\", \"location\": \"\", \"startTime\": \"09:00\", \"endTime\": \"10:30\", \"cost\": <number> }\n" +
+                "        { \"name\": \"\", \"description\": \"\", \"location\": \"\", \"startTime\": \"09:00\", \"endTime\": \"10:30\", \"cost\": <number> (VND) }\n" +
                 "      ]\n" +
                 "    }\n" +
                 "  ]\n" +

@@ -5,9 +5,9 @@ export type TripStatus = 'DRAFT' | 'GENERATING' | 'ACTIVE' | 'COMPLETED' | 'CANC
 export type BudgetTier = 'budget' | 'standard' | 'luxury';
 
 export const BUDGET_VALUES: Record<BudgetTier, number> = {
-  budget: 500,
-  standard: 1500,
-  luxury: 5000,
+  budget: 2000000,
+  standard: 5000000,
+  luxury: 15000000,
 };
 
 export const BUDGET_LABELS: Record<BudgetTier, string> = {

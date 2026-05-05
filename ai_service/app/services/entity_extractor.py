@@ -6,7 +6,7 @@ class EntityExtractor:
         # Basic keyword list for Vietnamese destinations
         self.destinations = ["đà lạt", "phú quốc", "nha trang", "hà nội", "sài gòn", "đà nẵng", "hội an"]
         self.vibes = ["chill", "khám phá", "nghỉ dưỡng", "sang chảnh", "phượt"]
-        self.times = ["cuối tuần", "tháng sau", "tháng trước", "tuần tới", "ngày mai"]
+        self.times = ["cuối tuần", "tháng sau", "tháng trước", "tuần tới", "ngày mai", "ngày mốt", "ngày kia", "ngày kìa"]
 
     def normalize_text(self, text: str) -> str:
         """Normalize Vietnamese text for better matching."""

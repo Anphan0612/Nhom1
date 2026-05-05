@@ -58,21 +58,57 @@ class ParsePipeline:
             # or optionally boost it. For now, keep it to show why it fell back.
         
         # --- DATE CALCULATION LOGIC ---
-        time_str = entities_dict.get("time")
+        time_str = (entities_dict.get("time") or "").lower()
         duration = entities_dict.get("duration_days") or 1
         
+        # Check if user mentioned multiple dates (e.g., "mai đi, mốt về")
+        raw_text = text.lower()
         start_date_obj = datetime.date.today()
-        if time_str:
-            t = time_str.lower()
-            if "ngày mai" in t or "hôm sau" in t:
-                start_date_obj += timedelta(days=1)
-            elif "tuần sau" in t or "tuần tới" in t:
-                start_date_obj += timedelta(days=7)
-            elif "tháng sau" in t or "tháng tới" in t:
-                start_date_obj += timedelta(days=30)
+        
+        # Determine Start Date
+        if "ngày mai" in raw_text or "hôm sau" in raw_text:
+            start_date_obj += timedelta(days=1)
+        elif "ngày mốt" in raw_text or "ngày kia" in raw_text:
+            start_date_obj += timedelta(days=2)
+        elif "ngày kìa" in raw_text:
+            start_date_obj += timedelta(days=3)
+        elif "tuần sau" in raw_text or "tuần tới" in raw_text:
+            start_date_obj += timedelta(days=7)
+        elif "tháng sau" in raw_text or "tháng tới" in raw_text:
+            start_date_obj += timedelta(days=30)
+
+        # Infer Duration if not extracted
+        if duration == 1:
+            if "ngày mốt" in raw_text or "ngày kia" in raw_text:
+                if "về" in raw_text or "đến" in raw_text:
+                    # If start was "mai" (+1) and return is "mốt" (+2), duration is 2
+                    if "ngày mai" in raw_text:
+                        duration = 2
+                    # If start was "today" and return is "mốt" (+2), duration is 3
+                    else:
+                        duration = 3
+            elif "ngày kìa" in raw_text:
+                if "về" in raw_text or "đến" in raw_text:
+                    if "ngày mai" in raw_text: duration = 3
+                    elif "ngày mốt" in raw_text or "ngày kia" in raw_text: duration = 2
+                    else: duration = 4
             
         entities_dict["start_date"] = start_date_obj.isoformat()
         entities_dict["end_date"] = (start_date_obj + timedelta(days=max(0, duration - 1))).isoformat()
+
+        # --- TRAVELER MAPPING ---
+        if not entities_dict.get("travelers"):
+            group_type = entities_dict.get("group_type", "").lower()
+            if "một mình" in group_type or "solo" in group_type:
+                entities_dict["travelers"] = 1
+            elif "hai người" in group_type:
+                entities_dict["travelers"] = 2
+            elif "cặp đôi" in group_type or "couple" in group_type:
+                entities_dict["travelers"] = 2
+            elif "gia đình" in group_type:
+                entities_dict["travelers"] = 4 # Default for family
+            else:
+                entities_dict["travelers"] = 2 # Global default
 
         # 6. Build Response
         return ParseResponse(

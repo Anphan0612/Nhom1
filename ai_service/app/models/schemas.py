@@ -12,6 +12,7 @@ class EntityResponse(BaseModel):
     vibe: Optional[str] = None
     time: Optional[str] = None
     group_type: Optional[str] = None
+    travelers: Optional[int] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
 

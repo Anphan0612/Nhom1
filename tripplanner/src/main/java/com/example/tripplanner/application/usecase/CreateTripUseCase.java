@@ -25,12 +25,20 @@ public class CreateTripUseCase {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + request.getUserId()));
 
+        java.time.LocalDate now = java.time.LocalDate.now();
+        if (request.getStartDate().isBefore(now)) {
+            throw new IllegalArgumentException("Ngày khởi hành không được ở trong quá khứ");
+        }
+        if (request.getStartDate().isAfter(now.plusYears(1))) {
+            throw new IllegalArgumentException("Chỉ có thể lên kế hoạch cho chuyến đi trong vòng 1 năm tới");
+        }
+
         long totalDays = java.time.temporal.ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate()) + 1;
         if (totalDays > 7) {
-            throw new IllegalArgumentException("Trip duration cannot exceed 7 days");
+            throw new IllegalArgumentException("Thời gian chuyến đi không được quá 7 ngày");
         }
         if (totalDays <= 0) {
-            throw new IllegalArgumentException("End date must be after or equal to start date");
+            throw new IllegalArgumentException("Ngày kết thúc phải sau hoặc bằng ngày khởi hành");
         }
 
         Trip trip = Trip.builder()
