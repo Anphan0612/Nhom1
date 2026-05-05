@@ -30,9 +30,16 @@ class EntityExtractor:
 
     def extract_duration(self, text: str) -> Optional[int]:
         """Extract duration in days (e.g., 3 ngày, 3 ngày 2 đêm)."""
+        # Handle "X ngày Y đêm" or "X ngày"
         duration_match = re.search(r'(\d+)\s*ngày', text)
         if duration_match:
             return int(duration_match.group(1))
+        
+        # Fallback to "X đêm" if days not mentioned (duration = nights + 1)
+        night_match = re.search(r'(\d+)\s*đêm', text)
+        if night_match:
+            return int(night_match.group(1)) + 1
+            
         return None
 
     def extract_origin(self, text: str) -> Optional[str]:

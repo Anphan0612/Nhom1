@@ -334,6 +334,19 @@ export default function PlanTrip() {
                 </div>
               </div>
             </div>
+            
+            {(startDate && endDate) && (
+              <div className="mt-4 flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-lg border border-primary/10 w-fit">
+                <span className="material-symbols-outlined text-primary text-sm">info</span>
+                <span className="text-sm font-medium text-primary">
+                  Thời gian: {(() => {
+                    const diffTime = Math.abs(new Date(endDate).getTime() - new Date(startDate).getTime());
+                    const days = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    return `${days} ngày ${days > 1 ? days - 1 : 0} đêm`;
+                  })()}
+                </span>
+              </div>
+            )}
 
             <div className="pt-6">
               <h2 className="text-2xl font-semibold mb-6">Đoàn &amp; Ngân sách</h2>

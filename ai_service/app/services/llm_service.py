@@ -23,6 +23,7 @@ Your job:
 - For budget: If user says "2 triệu" or "2tr", budget should be 2000000. ALWAYS return the full number in VND.
 - For travelers: If user says "đi một mình" or "solo", return 1. If "cặp đôi", return 2.
 - For origin: Extract the starting point if mentioned (e.g., "đi từ Hà Nội" -> origin: "Hà Nội").
+- For duration: If user says "X ngày Y đêm", duration_days should be X (e.g., "3 ngày 2 đêm" -> duration_days: 3).
 - For dates: If user says "ngày mai", "ngày kia", etc., try to infer duration or leave it for the pipeline.
 
 Input:
