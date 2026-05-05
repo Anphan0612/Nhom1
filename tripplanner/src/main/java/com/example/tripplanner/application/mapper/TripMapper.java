@@ -26,6 +26,7 @@ public final class TripMapper {
                 .budget(trip.getBudget())
                 .status(trip.getStatus())
                 .createdAt(trip.getCreatedAt())
+                .totalCost(trip.getTotalCost())
                 .recommendations(trip.getRecommendations().stream()
                         .map(TripMapper::toRecommendationResponse)
                         .toList())

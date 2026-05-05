@@ -20,5 +20,6 @@ public class TripResponse {
     private BigDecimal budget;
     private TripStatus status;
     private LocalDateTime createdAt;
+    private java.math.BigDecimal totalCost;
     private java.util.List<RecommendationResponse> recommendations;
 }

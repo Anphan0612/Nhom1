@@ -441,6 +441,12 @@ export default function Itinerary() {
                 <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Hoạt động</span>
                 <p className="text-lg font-bold text-on-surface mt-1">{itineraries.flatMap(i => i.activities).length} địa điểm</p>
               </div>
+              <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+                <span className="text-xs font-bold text-primary uppercase tracking-wider">Tổng chi phí dự tính</span>
+                <p className="text-lg font-bold text-primary mt-1">
+                  {formatCurrency(itineraries.reduce((sum, itin) => sum + itin.activities.reduce((s, a) => s + (a.cost || 0), 0), 0))}
+                </p>
+              </div>
             </div>
           </div>
 

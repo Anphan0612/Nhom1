@@ -29,6 +29,7 @@ export interface TripResponse {
   startDate: string; // ISO date string "YYYY-MM-DD"
   endDate: string;
   budget: number;
+  totalCost: number;
   status: TripStatus;
   createdAt: string; // ISO datetime string
 }

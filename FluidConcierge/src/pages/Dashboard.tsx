@@ -152,7 +152,12 @@ export default function Dashboard() {
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-sm">payments</span>
-                      {new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 0 }).format(Number(trip.budget) * 25000)}đ
+                      <span>
+                        {trip.totalCost > 0 
+                          ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(trip.totalCost)
+                          : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(trip.budget)
+                        }
+                      </span>
                     </span>
                   </div>
                 </div>

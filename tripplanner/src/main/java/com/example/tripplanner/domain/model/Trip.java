@@ -28,4 +28,15 @@ public class Trip {
 
     @Builder.Default
     private List<Recommendation> recommendations = new ArrayList<>();
+
+    public java.math.BigDecimal getTotalCost() {
+        if (itineraries == null) return java.math.BigDecimal.ZERO;
+        return itineraries.stream()
+                .filter(java.util.Objects::nonNull)
+                .flatMap(i -> i.getActivities() == null ? java.util.stream.Stream.empty() : i.getActivities().stream())
+                .filter(java.util.Objects::nonNull)
+                .map(Activity::getCost)
+                .filter(java.util.Objects::nonNull)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+    }
 }
