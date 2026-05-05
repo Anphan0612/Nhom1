@@ -11,9 +11,9 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_CLASS: Record<string, string> = {
-  PLANNING:   'bg-surface-container-highest text-on-surface-variant',
-  GENERATED:  'bg-secondary-fixed text-on-secondary-fixed',
-  CONFIRMED:  'bg-primary-fixed text-on-primary-fixed',
+  PLANNING:   'bg-primary/10 text-primary',
+  GENERATED:  'bg-cta/10 text-cta',
+  CONFIRMED:  'bg-primary text-white',
 };
 
 const DESTINATION_IMAGES: Record<string, string> = {
@@ -48,12 +48,12 @@ function calcDays(start: string, end: string): number {
 
 function TripCardSkeleton() {
   return (
-    <div className="bg-surface-container-lowest rounded-xl overflow-hidden animate-pulse">
-      <div className="h-64 bg-surface-container-high"></div>
+    <div className="bg-surface rounded-3xl overflow-hidden animate-pulse shadow-md">
+      <div className="h-64 bg-primary/5"></div>
       <div className="p-6 space-y-3">
-        <div className="h-5 bg-surface-container-high rounded w-3/4"></div>
-        <div className="h-4 bg-surface-container-high rounded w-full"></div>
-        <div className="h-4 bg-surface-container-high rounded w-2/3"></div>
+        <div className="h-5 bg-primary/5 rounded w-3/4"></div>
+        <div className="h-4 bg-primary/5 rounded w-full"></div>
+        <div className="h-4 bg-primary/5 rounded w-2/3"></div>
       </div>
     </div>
   );
@@ -79,25 +79,25 @@ export default function Dashboard() {
 
 
   return (
-    <div className="pt-8 px-8 pb-12 max-w-7xl mx-auto">
+    <div className="pt-8 px-8 pb-12 max-w-7xl mx-auto font-sans">
       {/* Hero Section */}
-      <section className="relative mb-16 rounded-xl overflow-hidden min-h-[320px] flex items-center p-12 bg-slate-900">
+      <section className="relative mb-16 rounded-3xl overflow-hidden min-h-[320px] flex items-center p-12 bg-emerald-950 shadow-xl">
         <div
-          className="absolute inset-0 opacity-40 bg-cover bg-center"
+          className="absolute inset-0 opacity-20 bg-cover bg-center"
           style={{ backgroundImage: "url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Hoi_An_Covered_Bridge.jpg/1280px-Hoi_An_Covered_Bridge.jpg')" }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/70 to-transparent"></div>
         <div className="relative z-10 max-w-2xl">
-          <h2 className="text-5xl font-bold text-white mb-4 leading-tight">
-            Bạn muốn đi đâu <span className="text-primary-container">tiếp theo?</span>
+          <h2 className="text-5xl font-bold text-white mb-4 leading-tight font-display">
+            Bạn muốn đi đâu <span className="text-secondary">tiếp theo?</span>
           </h2>
-          <p className="text-lg text-slate-300 mb-8 font-body">
+          <p className="text-lg text-emerald-100/80 mb-8 font-sans">
             Sức mạnh AI sẽ giúp bạn lên kế hoạch chuyến đi hoàn hảo. Từ điểm ẩn đến trải nghiệm cao cấp, để chúng tôi lo từng chi tiết.
           </p>
           <button
             id="btn-create-trip"
             onClick={() => navigate('/plan')}
-            className="group flex items-center gap-3 bg-gradient-to-br from-primary to-primary-container text-white px-8 py-4 rounded-full font-bold shadow-2xl shadow-primary/40 hover:scale-105 transition-all"
+            className="group flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-full font-bold shadow-2xl shadow-primary/30 hover:bg-cta transition-all cursor-pointer"
           >
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
             Tạo chuyến đi mới
@@ -105,17 +105,18 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* View Toggles only */}
-      <div className="flex justify-end mb-12">
-        <div className="bg-surface-container-highest p-1 rounded-full flex gap-1">
-          <button className="p-3 bg-surface-container-lowest text-primary rounded-full shadow-sm">
-            <span className="material-symbols-outlined">grid_view</span>
+      {/* View Toggles */}
+      <div className="flex justify-between items-center mb-12">
+        <h3 className="text-2xl font-bold text-text font-display">Chuyến đi của bạn</h3>
+        <div className="bg-primary/5 p-1 rounded-full flex gap-1 border border-primary/10">
+          <button className="p-2 bg-white dark:bg-slate-700 text-primary rounded-full shadow-sm cursor-pointer">
+            <span className="material-symbols-outlined text-sm">grid_view</span>
           </button>
-          <button className="p-3 text-on-surface-variant hover:text-on-surface transition-colors">
-            <span className="material-symbols-outlined">calendar_month</span>
+          <button className="p-2 text-text-muted hover:text-text transition-colors cursor-pointer">
+            <span className="material-symbols-outlined text-sm">calendar_month</span>
           </button>
-          <button className="p-3 text-on-surface-variant hover:text-on-surface transition-colors">
-            <span className="material-symbols-outlined">map</span>
+          <button className="p-2 text-text-muted hover:text-text transition-colors cursor-pointer">
+            <span className="material-symbols-outlined text-sm">map</span>
           </button>
         </div>
       </div>
@@ -130,7 +131,7 @@ export default function Dashboard() {
               <div
                 key={trip.id}
                 onClick={() => navigate(`/itinerary/${trip.id}`)}
-                className="group bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-[0px_12px_32px_rgba(25,28,30,0.06)] transition-all cursor-pointer"
+                className="group bg-surface rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all cursor-pointer border border-primary/5 flex flex-col"
               >
                 <div className="relative h-64 overflow-hidden">
                   <img
@@ -139,32 +140,36 @@ export default function Dashboard() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     onError={e => { (e.target as HTMLImageElement).src = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480"><rect width="100%" height="100%" fill="%23e0e0e0"/><text x="50%" y="50%" font-family="sans-serif" font-size="24" fill="%23757575" text-anchor="middle" dominant-baseline="middle">${trip.destination}</text></svg>`)}`; }}
                   />
-                  <div className={`absolute top-4 right-4 ${STATUS_CLASS[trip.status] ?? STATUS_CLASS.PLANNING} px-3 py-1 rounded-full text-xs font-bold font-label uppercase`}>
+                  <div className={`absolute top-4 right-4 ${STATUS_CLASS[trip.status] ?? STATUS_CLASS.PLANNING} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm`}>
                     {STATUS_LABELS[trip.status] ?? trip.status}
                   </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <div className="p-6">
+                <div className="p-6 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-xl font-bold text-on-surface">{trip.title}</h4>
-                    <span className="text-xs text-on-surface-variant bg-surface-container px-2 py-1 rounded">
-                      {new Date(trip.startDate).toLocaleDateString('vi-VN', { day: 'numeric', month: 'short' })}
-                    </span>
+                    <h4 className="text-xl font-bold text-text font-display line-clamp-1 group-hover:text-primary transition-colors">{trip.title}</h4>
                   </div>
-                  <p className="text-sm text-on-surface-variant mb-6">{trip.destination}</p>
-                  <div className="flex items-center gap-4 text-xs font-semibold text-on-surface-variant">
-                    <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm">schedule</span>
-                      {Math.round(calcDays(trip.startDate, trip.endDate))} ngày
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm">payments</span>
-                      <span>
+                  <p className="text-sm text-text-muted mb-6 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">location_on</span>
+                    {trip.destination}
+                  </p>
+                  <div className="mt-auto flex items-center justify-between pt-4 border-t border-primary/5">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-text-muted/60 uppercase tracking-widest">Ngân sách</span>
+                      <span className="text-sm font-bold text-text">
                         {trip.totalCost > 0 
-                          ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(trip.totalCost)
-                          : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(trip.budget)
-                        }
+                          ? new Intl.NumberFormat('vi-VN').format(trip.totalCost)
+                          : new Intl.NumberFormat('vi-VN').format(trip.budget)
+                        } <span className="text-[10px]">VND</span>
                       </span>
-                    </span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] font-bold text-text-muted/60 uppercase tracking-widest">Thời gian</span>
+                      <div className="flex items-center gap-1 text-sm font-bold text-text">
+                        <span className="material-symbols-outlined text-sm">schedule</span>
+                        {Math.round(calcDays(trip.startDate, trip.endDate))} ngày
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -175,22 +180,22 @@ export default function Dashboard() {
         {/* Add New Trip Skeleton */}
         <div
           onClick={() => navigate('/plan')}
-          className="group border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center p-8 hover:bg-surface-container-low transition-all cursor-pointer h-full min-h-[400px]"
+          className="group border-2 border-dashed border-primary/20 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer h-full min-h-[400px]"
         >
-          <div className="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
             <span className="material-symbols-outlined text-3xl">add_circle</span>
           </div>
-          <h4 className="text-xl font-bold text-on-surface mb-2">Lên kế hoạch mới</h4>
-          <p className="text-sm text-on-surface-variant text-center max-w-[200px]">Chia sẻ ước mơ của bạn và AI sẽ lên lộ trình.</p>
+          <h4 className="text-xl font-bold text-text mb-2 font-display">Lên kế hoạch mới</h4>
+          <p className="text-sm text-text-muted text-center max-w-[200px] font-sans">Chia sẻ ước mơ của bạn và AI sẽ lên lộ trình hoàn hảo.</p>
         </div>
       </div>
 
       {/* Floating Action Button */}
       <button
         onClick={() => navigate('/plan')}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50"
+        className="fixed bottom-8 right-8 w-14 h-14 bg-cta text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 cursor-pointer"
       >
-        <span className="material-symbols-outlined text-2xl">chat_bubble</span>
+        <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
       </button>
     </div>
   );

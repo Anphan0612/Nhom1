@@ -7,8 +7,8 @@
 ---
 
 **Project:** TripPlanner
-**Generated:** 2026-04-20 17:22:50
-**Category:** Luxury/Premium Brand
+**Generated:** 2026-05-05 22:37:11
+**Category:** Wedding/Event Planning
 
 ---
 
@@ -18,13 +18,13 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#EC4899` | `--color-primary` |
-| Secondary | `#F472B6` | `--color-secondary` |
-| CTA/Accent | `#06B6D4` | `--color-cta` |
-| Background | `#FDF2F8` | `--color-background` |
-| Text | `#831843` | `--color-text` |
+| Primary | `#7C3AED` | `--color-primary` |
+| Secondary | `#A78BFA` | `--color-secondary` |
+| CTA/Accent | `#F97316` | `--color-cta` |
+| Background | `#FAF5FF` | `--color-background` |
+| Text | `#4C1D95` | `--color-text` |
 
-**Color Notes:** Vibrant destination colors + Sky Blue + Warm accents
+**Color Notes:** Soft Pink (#FFD6E0) + Gold + Cream + Sage
 
 ### Typography
 
@@ -68,7 +68,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #06B6D4;
+  background: #F97316;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -85,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #EC4899;
-  border: 2px solid #EC4899;
+  color: #7C3AED;
+  border: 2px solid #7C3AED;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -99,7 +99,7 @@
 
 ```css
 .card {
-  background: #FDF2F8;
+  background: #FAF5FF;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -125,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #EC4899;
+  border-color: #7C3AED;
   outline: none;
-  box-shadow: 0 0 0 3px #EC489920;
+  box-shadow: 0 0 0 3px #7C3AED20;
 }
 ```
 
@@ -153,17 +153,17 @@
 
 ## Style Guidelines
 
-**Style:** Liquid Glass
+**Style:** Soft UI Evolution
 
-**Keywords:** Flowing glass, morphing, smooth transitions, fluid effects, translucent, animated blur, iridescent, chromatic aberration
+**Keywords:** Evolved soft UI, better contrast, modern aesthetics, subtle depth, accessibility-focused, improved shadows, hybrid
 
-**Best For:** Premium SaaS, high-end e-commerce, creative platforms, branding experiences, luxury portfolios
+**Best For:** Modern enterprise apps, SaaS platforms, health/wellness, modern business tools, professional, hybrid
 
-**Key Effects:** Morphing elements (SVG/CSS), fluid animations (400-600ms curves), dynamic blur (backdrop-filter), color transitions
+**Key Effects:** Improved shadows (softer than flat, clearer than neumorphism), modern (200-300ms), focus visible, WCAG AA/AAA
 
 ### Page Pattern
 
-**Pattern Name:** Storytelling + Feature-Rich
+**Pattern Name:** Storytelling + Social Proof
 
 - **CTA Placement:** Above fold
 - **Section Order:** Hero > Features > CTA
@@ -172,8 +172,8 @@
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Cheap visuals
-- ❌ Fast animations
+- ❌ Generic templates
+- ❌ No portfolio
 
 ### Additional Forbidden Patterns
 

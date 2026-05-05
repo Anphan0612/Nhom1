@@ -11,9 +11,9 @@ const TagBadge: React.FC<TagBadgeProps> = ({ label, variant = 'outline', classNa
   
   const variants = {
     primary: 'bg-primary text-white shadow-sm',
-    secondary: 'bg-secondary-container text-on-secondary-container',
-    outline: 'border border-outline-variant/30 text-on-surface-variant',
-    glass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white',
+    secondary: 'bg-primary/10 text-primary',
+    outline: 'border border-primary/10 text-text-muted',
+    glass: 'bg-white/20 backdrop-blur-md border border-white/30 text-white',
   };
 
   return (
