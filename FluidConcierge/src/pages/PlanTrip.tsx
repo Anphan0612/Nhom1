@@ -86,6 +86,7 @@ export default function PlanTrip() {
       const result = await aiApi.parseTrip(aiDescription);
       
       if (result.destination) setDestination(result.destination);
+      if (result.origin) setOrigin(result.origin);
       if (result.startDate) setStartDate(result.startDate);
       if (result.endDate) setEndDate(result.endDate);
       if (result.travelers) setTravelers(result.travelers);

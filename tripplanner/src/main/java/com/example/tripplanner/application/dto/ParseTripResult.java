@@ -8,6 +8,7 @@ import java.util.List;
 @Builder
 public class ParseTripResult {
     private String destination;
+    private String origin;
     private String startDate;
     private String endDate;
     private Integer travelers;

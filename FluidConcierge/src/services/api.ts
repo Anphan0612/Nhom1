@@ -74,6 +74,7 @@ export const activityApi = {
 
 export interface ParseTripResult {
   destination: string | null;
+  origin: string | null;
   startDate: string | null;
   endDate: string | null;
   travelers: number | null;

@@ -13,6 +13,7 @@ class EntityResponse(BaseModel):
     time: Optional[str] = None
     group_type: Optional[str] = None
     travelers: Optional[int] = None
+    origin: Optional[str] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
 

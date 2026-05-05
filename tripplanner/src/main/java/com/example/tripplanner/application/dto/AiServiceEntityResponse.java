@@ -11,6 +11,7 @@ public class AiServiceEntityResponse {
     private String time;
     private String group_type;
     private Integer travelers;
+    private String origin;
     private String start_date;
     private String end_date;
 }

@@ -54,6 +54,7 @@ public class AiProxyService {
 
         return ParseTripResult.builder()
                 .destination(destination)
+                .origin(entities.getOrigin())
                 .travelers(entities.getTravelers())
                 .budgetTier(budgetTier)
                 .travelStyles(travelStyles)

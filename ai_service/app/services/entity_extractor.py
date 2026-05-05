@@ -35,11 +35,22 @@ class EntityExtractor:
             return int(duration_match.group(1))
         return None
 
+    def extract_origin(self, text: str) -> Optional[str]:
+        """Extract origin (starting point) from text."""
+        # Patterns: "từ Hà Nội", "khởi hành từ Sài Gòn", "xuất phát từ Đà Nẵng"
+        match = re.search(r'(?:từ|khởi hành từ|xuất phát từ)\s+([a-zà-ỹ\s]+)', text)
+        if match:
+             # Avoid capturing the entire rest of string if it contains "đi" or "đến"
+             location = re.split(r'\s+(?:đi|đến|tới|vào)\s+', match.group(1))[0].strip()
+             return location.title()
+        return None
+
     def extract(self, text: str) -> Dict[str, Any]:
         normalized = self.normalize_text(text)
         
         entities = {
             "destination": None,
+            "origin": self.extract_origin(normalized),
             "duration_days": self.extract_duration(normalized),
             "budget": self.extract_budget(normalized),
             "vibe": None,

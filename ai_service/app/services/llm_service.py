@@ -22,6 +22,7 @@ Your job:
 - Fill missing or unclear fields.
 - For budget: If user says "2 triệu" or "2tr", budget should be 2000000. ALWAYS return the full number in VND.
 - For travelers: If user says "đi một mình" or "solo", return 1. If "cặp đôi", return 2.
+- For origin: Extract the starting point if mentioned (e.g., "đi từ Hà Nội" -> origin: "Hà Nội").
 - For dates: If user says "ngày mai", "ngày kia", etc., try to infer duration or leave it for the pipeline.
 
 Input:
@@ -32,6 +33,7 @@ User profile: {user_profile_json}
 Return JSON ONLY:
 {{
   "destination": string or null,
+  "origin": string or null,
   "vibe": string or null,
   "budget": number or null,
   "duration_days": number or null,
