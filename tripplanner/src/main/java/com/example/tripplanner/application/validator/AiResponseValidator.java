@@ -48,9 +48,7 @@ public class AiResponseValidator {
                 return ValidationResult.fail("Schema error: 'activities' array is missing in one or more days");
             }
         }
-        if (!root.has("totalCost")) {
-            return ValidationResult.fail("Schema error: 'totalCost' is missing");
-        }
+        // totalCost is optional — will be computed from activities if missing
         return ValidationResult.ok();
     }
 
@@ -64,9 +62,10 @@ public class AiResponseValidator {
                 return ValidationResult.fail("Business error: each day must have at least 1 activity");
             }
         }
+        // totalCost is optional — if present, validate it; if absent, parser will compute from activities
         JsonNode totalCost = root.get("totalCost");
-        if (!totalCost.isNumber() || totalCost.asDouble() <= 0) {
-            return ValidationResult.fail("Business error: totalCost must be > 0");
+        if (totalCost != null && totalCost.isNumber() && totalCost.asDouble() < 0) {
+            return ValidationResult.fail("Business error: totalCost must be >= 0");
         }
         return ValidationResult.ok();
     }

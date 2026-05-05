@@ -25,6 +25,14 @@ public class CreateTripUseCase {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + request.getUserId()));
 
+        long totalDays = java.time.temporal.ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate()) + 1;
+        if (totalDays > 7) {
+            throw new IllegalArgumentException("Trip duration cannot exceed 7 days");
+        }
+        if (totalDays <= 0) {
+            throw new IllegalArgumentException("End date must be after or equal to start date");
+        }
+
         Trip trip = Trip.builder()
                 .user(user)
                 .title(request.getTitle())

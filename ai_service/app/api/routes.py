@@ -43,10 +43,15 @@ async def chat(request: ChatRequest):
     """
     Raw chat completions endpoint that proxies to the underlying LLM service.
     """
+    import logging
+    logger = logging.getLogger(__name__)
     try:
         from app.services.llm_service import llm_service
         messages = [{"role": "user", "content": request.prompt}]
+        logger.info(f"📨 /chat called. Prompt length: {len(request.prompt)} chars")
         response = await llm_service.call_llm_raw(messages)
+        logger.info(f"📩 LLM response model={response['model']}, content length={len(response['content'])}")
+        logger.info(f"📩 LLM content preview: {response['content'][:500]}")
         return ChatResponse(
             content=response["content"],
             model=response["model"],
@@ -54,4 +59,5 @@ async def chat(request: ChatRequest):
             completion_tokens=response["completion_tokens"]
         )
     except Exception as e:
+        logger.error(f"❌ /chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

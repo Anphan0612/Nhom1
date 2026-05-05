@@ -29,6 +29,14 @@ public class UpdateTripUseCase {
         if (request.getEndDate() != null) trip.setEndDate(request.getEndDate());
         if (request.getBudget() != null) trip.setBudget(request.getBudget());
         if (request.getStatus() != null) trip.setStatus(request.getStatus());
+        
+        long totalDays = java.time.temporal.ChronoUnit.DAYS.between(trip.getStartDate(), trip.getEndDate()) + 1;
+        if (totalDays > 7) {
+            throw new IllegalArgumentException("Trip duration cannot exceed 7 days");
+        }
+        if (totalDays <= 0) {
+            throw new IllegalArgumentException("End date must be after or equal to start date");
+        }
 
         return TripMapper.toResponse(tripRepository.save(trip));
     }

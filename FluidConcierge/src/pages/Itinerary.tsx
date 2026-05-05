@@ -5,10 +5,10 @@ import type { TripResponse, ItineraryResponse, ActivityResponse } from '../types
 import EditActivityModal from '../components/EditActivityModal';
 
 const CATEGORY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  default:    { bg: 'bg-primary-fixed',   text: 'text-on-primary-fixed',   label: 'Hoạt động' },
-  food:       { bg: 'bg-tertiary-fixed',  text: 'text-on-tertiary-fixed',  label: 'Ẩm thực'   },
-  sightseeing:{ bg: 'bg-primary-fixed',   text: 'text-on-primary-fixed',   label: 'Tham quan'  },
-  nature:     { bg: 'bg-secondary-fixed', text: 'text-on-secondary-fixed', label: 'Thiên nhiên' },
+  default: { bg: 'bg-primary-fixed', text: 'text-on-primary-fixed', label: 'Hoạt động' },
+  food: { bg: 'bg-tertiary-fixed', text: 'text-on-tertiary-fixed', label: 'Ẩm thực' },
+  sightseeing: { bg: 'bg-primary-fixed', text: 'text-on-primary-fixed', label: 'Tham quan' },
+  nature: { bg: 'bg-secondary-fixed', text: 'text-on-secondary-fixed', label: 'Thiên nhiên' },
 };
 
 function formatTime(timeStr: string | null | undefined): string {
@@ -23,14 +23,6 @@ function formatCurrency(amount: number): string {
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' });
-}
-
-function calcTotalDays(start: string, end: string): number {
-  return Math.abs(new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24) + 1;
-}
-
-function calcTotalCost(itineraries: ItineraryResponse[]): number {
-  return itineraries.flatMap(i => i.activities).reduce((sum, a) => sum + (a.cost || 0), 0);
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────
@@ -73,18 +65,18 @@ function ActivityCard({ activity, onEdit, onDelete }: {
         </div>
       </div>
 
-      {/* Action buttons (show on hover) */}
-      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+      {/* Action buttons below card (show on hover) */}
+      <div className="flex justify-end gap-2 mt-2">
         <button
           onClick={() => onEdit(activity)}
-          className="p-2 bg-primary text-white rounded-lg hover:scale-105 transition-all shadow-md"
+          className="p-2 bg-primary text-white rounded-lg hover:scale-105 cursor-pointer transition-all shadow-md"
           title="Chỉnh sửa"
         >
           <span className="material-symbols-outlined text-sm">edit</span>
         </button>
         <button
           onClick={() => onDelete(activity.id)}
-          className="p-2 bg-error text-white rounded-lg hover:scale-105 transition-all shadow-md"
+          className="p-2 bg-error text-white rounded-lg hover:scale-105 cursor-pointer transition-all shadow-md"
           title="Xóa"
         >
           <span className="material-symbols-outlined text-sm">delete</span>
@@ -367,8 +359,6 @@ export default function Itinerary() {
 
   if (!trip) return null;
 
-  const totalDays = calcTotalDays(trip.startDate, trip.endDate);
-  const totalCost = calcTotalCost(itineraries);
   const sortedItineraries = [...itineraries].sort((a, b) => a.dayNumber - b.dayNumber);
 
   return (
@@ -381,24 +371,18 @@ export default function Itinerary() {
             <span className="font-medium text-primary">{trip.destination}</span>
           </nav>
           <h1 className="text-4xl font-headline font-extrabold text-on-surface tracking-tight leading-tight">
-            {totalDays} ngày tại {trip.destination}
+            Chuyến đi {trip.destination}
           </h1>
           <div className="flex items-center gap-6 mt-4 flex-wrap">
             <div className="flex items-center gap-2 text-on-surface-variant">
               <span className="material-symbols-outlined text-sky-600">calendar_today</span>
               <span className="font-medium">{new Date(trip.startDate).toLocaleDateString('vi-VN')} – {new Date(trip.endDate).toLocaleDateString('vi-VN')}</span>
             </div>
-            {totalCost > 0 && (
-              <div className="flex items-center gap-2 text-on-surface-variant">
-                <span className="material-symbols-outlined text-sky-600">payments</span>
-                <span className="font-medium">Ước tính: {formatCurrency(totalCost)}</span>
-              </div>
-            )}
-            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-              trip.status === 'ACTIVE' ? 'bg-secondary-fixed text-on-secondary-fixed' :
-              trip.status === 'COMPLETED' ? 'bg-primary-fixed text-on-primary-fixed' :
-              'bg-surface-container-highest text-on-surface-variant'
-            }`}>
+
+            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${trip.status === 'ACTIVE' ? 'bg-secondary-fixed text-on-secondary-fixed' :
+                trip.status === 'COMPLETED' ? 'bg-primary-fixed text-on-primary-fixed' :
+                  'bg-surface-container-highest text-on-surface-variant'
+              }`}>
               {trip.status === 'ACTIVE' ? 'Đang hoạt động' : trip.status === 'COMPLETED' ? 'Hoàn thành' : trip.status}
             </div>
           </div>
@@ -449,34 +433,13 @@ export default function Itinerary() {
 
         {/* Right Column: Stats */}
         <div className="lg:col-span-5 space-y-8">
-          {/* Budget Health */}
+          {/* Stats Summary */}
           <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
-            <h3 className="text-xl font-headline font-semibold text-on-surface mb-6">Ngân sách</h3>
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between items-end mb-2">
-                  <span className="text-sm font-medium text-on-surface-variant">Tổng ước tính</span>
-                  <span className="text-lg font-bold text-on-surface">
-                    {formatCurrency(totalCost)}{' '}
-                    <span className="text-sm font-normal text-on-surface-variant">/ {formatCurrency(Number(trip.budget))}</span>
-                  </span>
-                </div>
-                <div className="w-full h-3 bg-surface-container-low rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary to-primary-container rounded-full transition-all"
-                    style={{ width: `${Math.min(100, (totalCost / Number(trip.budget)) * 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-surface-container-low">
-                  <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Số ngày</span>
-                  <p className="text-lg font-bold text-on-surface mt-1">{totalDays} ngày</p>
-                </div>
-                <div className="p-4 rounded-xl bg-surface-container-low">
-                  <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Hoạt động</span>
-                  <p className="text-lg font-bold text-on-surface mt-1">{itineraries.flatMap(i => i.activities).length}</p>
-                </div>
+            <h3 className="text-xl font-headline font-semibold text-on-surface mb-6">Thông tin</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="p-4 rounded-xl bg-surface-container-low">
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Hoạt động</span>
+                <p className="text-lg font-bold text-on-surface mt-1">{itineraries.flatMap(i => i.activities).length} địa điểm</p>
               </div>
             </div>
           </div>

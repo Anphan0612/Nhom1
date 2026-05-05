@@ -36,33 +36,6 @@ export default function UserLayout() {
             </span>
             Dashboard
           </NavLink>
-          <NavLink
-            to="/destinations"
-            className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl hover:scale-[1.02] transition-all"
-          >
-            <span className="material-symbols-outlined">map</span>
-            Destinations
-          </NavLink>
-          <NavLink
-            to="/itinerary/tokyo"
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-transform duration-200 hover:scale-[1.02] ${
-                isActive
-                  ? 'bg-white dark:bg-slate-800 text-sky-600 dark:text-sky-400 shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
-              }`
-            }
-          >
-            <span className="material-symbols-outlined">event_note</span>
-            Itineraries
-          </NavLink>
-          <NavLink
-            to="/budget"
-            className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl hover:scale-[1.02] transition-all"
-          >
-            <span className="material-symbols-outlined">payments</span>
-            Budget
-          </NavLink>
         </nav>
         <div className="mt-auto pt-6 space-y-2 border-t border-outline-variant/10">
           <NavLink
@@ -88,9 +61,7 @@ export default function UserLayout() {
         <header className="sticky top-0 w-full z-50 h-16 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl px-8 flex justify-between items-center border-b border-outline-variant/5">
           <div className="flex items-center gap-8">
             <div className="hidden md:flex items-center gap-6">
-              <NavLink to="/explore" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
-                Explore
-              </NavLink>
+             
               <NavLink to="/" className={isDashboard ? "text-sky-600 dark:text-sky-400 font-semibold border-b-2 border-sky-600 dark:border-sky-400 pb-1" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"}>
                 My Trips
               </NavLink>

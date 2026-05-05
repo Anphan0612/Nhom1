@@ -113,6 +113,14 @@ public class AIOrchestrator {
 
         long executionTime = System.currentTimeMillis() - startTime;
         AiLog saved = saveLog(trip, originalPrompt, state, userFeedback, promptVersion, executionTime);
+
+        if (!state.isSuccess) {
+            log.error("AI pipeline failed after {} retries for trip={}. Last error: {}",
+                    MAX_RETRIES, trip.getId(), state.lastErrorMessage);
+            throw new RuntimeException("AI generation failed after " + MAX_RETRIES +
+                    " attempts: " + state.lastErrorMessage);
+        }
+
         return saved.getId();
     }
 

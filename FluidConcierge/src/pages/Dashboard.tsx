@@ -5,19 +5,15 @@ import type { TripResponse } from '../types/trip';
 import { useAuth } from '../context/AuthContext';
 
 const STATUS_LABELS: Record<string, string> = {
-  DRAFT:      'Nháp',
-  GENERATING: 'Đang tạo',
-  ACTIVE:     'Hoạt động',
-  COMPLETED:  'Hoàn thành',
-  CANCELLED:  'Đã hủy',
+  PLANNING:   'Đang lên kế hoạch',
+  GENERATED:  'Đã tạo',
+  CONFIRMED:  'Đã xác nhận',
 };
 
 const STATUS_CLASS: Record<string, string> = {
-  DRAFT:      'bg-surface-container-highest text-on-surface-variant',
-  GENERATING: 'bg-secondary-fixed text-on-secondary-fixed',
-  ACTIVE:     'bg-primary-fixed text-on-primary-fixed',
-  COMPLETED:  'bg-tertiary-fixed text-on-tertiary-fixed',
-  CANCELLED:  'bg-error-container text-on-error-container',
+  PLANNING:   'bg-surface-container-highest text-on-surface-variant',
+  GENERATED:  'bg-secondary-fixed text-on-secondary-fixed',
+  CONFIRMED:  'bg-primary-fixed text-on-primary-fixed',
 };
 
 const DESTINATION_IMAGES: Record<string, string> = {
@@ -35,6 +31,8 @@ function getImageForDestination(destination: string): string {
   }
   return `https://lh3.googleusercontent.com/aida-public/AB6AXuBkF-Z9gpc6o79QSRGm32SxyoZBR7JyAbmNWxoTWjCJ1fTz5KVKLRb14R2QA63E3vn1ZYWQdSDmLrYkuewfIVcLNaeMgZ3QaQsEjwT_8sincE_c-7hdsP-qRFb_5CagNcDg8ttX72r-91tertmOLxucSUsyjSaA3nkY-s4jAbdct5jpZLIqLTfdHbxICREIKgzFoevx_2EUIAPHsOe7NapW2-2j6j0si1MNiuB28eDZdWM6LRemZfI-U4fDVrhnSWu24LN8Jy6w6hc`;
 }
+
+
 
 function calcDays(start: string, end: string): number {
   return Math.abs(new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24) + 1;
@@ -72,8 +70,7 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, [user?.id]);
 
-  const totalDays = trips.reduce((sum, t) => sum + calcDays(t.startDate, t.endDate), 0);
-  const totalBudget = trips.reduce((sum, t) => sum + Number(t.budget), 0);
+
 
   return (
     <div className="pt-8 px-8 pb-12 max-w-7xl mx-auto">
@@ -102,36 +99,18 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Stats & Toggles */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12 items-end">
-        <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-surface-container-low p-6 rounded-xl border border-transparent hover:bg-surface-container transition-colors">
-            <p className="text-sm font-label text-on-surface-variant font-semibold uppercase tracking-wider mb-2">Tổng chuyến đi</p>
-            <h3 className="text-4xl font-bold text-on-surface">{loading ? '—' : trips.length}</h3>
-          </div>
-          <div className="bg-surface-container-low p-6 rounded-xl border border-transparent hover:bg-surface-container transition-colors">
-            <p className="text-sm font-label text-on-surface-variant font-semibold uppercase tracking-wider mb-2">Tổng số ngày</p>
-            <h3 className="text-4xl font-bold text-on-surface">{loading ? '—' : Math.round(totalDays)}</h3>
-          </div>
-          <div className="bg-surface-container-low p-6 rounded-xl border border-transparent hover:bg-surface-container transition-colors">
-            <p className="text-sm font-label text-on-surface-variant font-semibold uppercase tracking-wider mb-2">Ngân sách tổng</p>
-            <h3 className="text-4xl font-bold text-primary">
-              {loading ? '—' : new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 }).format(totalBudget * 25000) + 'đ'}
-            </h3>
-          </div>
-        </div>
-        <div className="lg:col-span-4 flex justify-end">
-          <div className="bg-surface-container-highest p-1 rounded-full flex gap-1">
-            <button className="p-3 bg-surface-container-lowest text-primary rounded-full shadow-sm">
-              <span className="material-symbols-outlined">grid_view</span>
-            </button>
-            <button className="p-3 text-on-surface-variant hover:text-on-surface transition-colors">
-              <span className="material-symbols-outlined">calendar_month</span>
-            </button>
-            <button className="p-3 text-on-surface-variant hover:text-on-surface transition-colors">
-              <span className="material-symbols-outlined">map</span>
-            </button>
-          </div>
+      {/* View Toggles only */}
+      <div className="flex justify-end mb-12">
+        <div className="bg-surface-container-highest p-1 rounded-full flex gap-1">
+          <button className="p-3 bg-surface-container-lowest text-primary rounded-full shadow-sm">
+            <span className="material-symbols-outlined">grid_view</span>
+          </button>
+          <button className="p-3 text-on-surface-variant hover:text-on-surface transition-colors">
+            <span className="material-symbols-outlined">calendar_month</span>
+          </button>
+          <button className="p-3 text-on-surface-variant hover:text-on-surface transition-colors">
+            <span className="material-symbols-outlined">map</span>
+          </button>
         </div>
       </div>
 
@@ -152,9 +131,9 @@ export default function Dashboard() {
                     src={getImageForDestination(trip.destination)}
                     alt={trip.destination}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={e => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/640x480?text=' + encodeURIComponent(trip.destination); }}
+                    onError={e => { (e.target as HTMLImageElement).src = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480"><rect width="100%" height="100%" fill="%23e0e0e0"/><text x="50%" y="50%" font-family="sans-serif" font-size="24" fill="%23757575" text-anchor="middle" dominant-baseline="middle">${trip.destination}</text></svg>`)}`; }}
                   />
-                  <div className={`absolute top-4 right-4 ${STATUS_CLASS[trip.status] ?? STATUS_CLASS.DRAFT} px-3 py-1 rounded-full text-xs font-bold font-label uppercase`}>
+                  <div className={`absolute top-4 right-4 ${STATUS_CLASS[trip.status] ?? STATUS_CLASS.PLANNING} px-3 py-1 rounded-full text-xs font-bold font-label uppercase`}>
                     {STATUS_LABELS[trip.status] ?? trip.status}
                   </div>
                 </div>

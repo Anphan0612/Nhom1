@@ -3,7 +3,7 @@ import UserLayout from './components/layout/UserLayout';
 import AdminLayout from './components/layout/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import PlanTrip from './pages/PlanTrip';
-import Explore from './pages/Explore';
+//import Explore from './pages/Explore';
 import Itinerary from './pages/Itinerary';
 import Places from './pages/admin/Places';
 import Users from './pages/admin/Users';
@@ -25,7 +25,6 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<UserLayout />}>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/explore" element={<Explore />} />
               <Route path="/plan" element={<PlanTrip />} />
               <Route path="/itinerary/:id" element={<Itinerary />} />
             </Route>
