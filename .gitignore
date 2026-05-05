@@ -53,7 +53,24 @@ dist/
 build/
 .npm/
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+
+# AI Agent workspace files
 .agent/
 .claude/
+.openclaw/
+AGENTS.md
+HEARTBEAT.md
+IDENTITY.md
+SOUL.md
+TOOLS.md
+USER.md
+MEMORY.md
+
+# IDEs (dedup)
 .idea/
 .vscode/
