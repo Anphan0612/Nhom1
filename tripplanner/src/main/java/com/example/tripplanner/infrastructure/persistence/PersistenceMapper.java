@@ -314,4 +314,35 @@ public class PersistenceMapper {
                 .selected(entity.isSelected())
                 .build();
     }
+
+    // SharedContent mapping
+    public SharedContentEntity toEntity(SharedContent domain) {
+        if (domain == null) return null;
+        return SharedContentEntity.builder()
+                .id(domain.getId())
+                .user(toEntity(domain.getUser()))
+                .type(domain.getType())
+                .refId(domain.getRefId())
+                .content(domain.getContent())
+                .rating(domain.getRating())
+                .totalVotes(domain.getTotalVotes())
+                .status(domain.getStatus())
+                .createdAt(domain.getCreatedAt())
+                .build();
+    }
+
+    public SharedContent toDomain(SharedContentEntity entity) {
+        if (entity == null) return null;
+        return SharedContent.builder()
+                .id(entity.getId())
+                .user(toDomain(entity.getUser()))
+                .type(entity.getType())
+                .refId(entity.getRefId())
+                .content(entity.getContent())
+                .rating(entity.getRating())
+                .totalVotes(entity.getTotalVotes())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
 }

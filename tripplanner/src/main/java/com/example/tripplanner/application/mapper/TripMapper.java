@@ -8,6 +8,8 @@ import com.example.tripplanner.domain.model.Activity;
 import com.example.tripplanner.domain.model.Itinerary;
 import com.example.tripplanner.domain.model.Recommendation;
 import com.example.tripplanner.domain.model.Trip;
+import com.example.tripplanner.domain.model.User;
+import com.example.tripplanner.application.dto.UserResponse;
 
 import java.util.List;
 
@@ -16,7 +18,17 @@ public final class TripMapper {
         private TripMapper() {
         }
 
-        public static TripResponse toResponse(Trip trip) {
+        public static UserResponse toUserResponse(User user) {
+        if (user == null) return null;
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(user.getRole().name())
+                .build();
+    }
+
+    public static TripResponse toResponse(Trip trip) {
                 return TripResponse.builder()
                                 .id(trip.getId())
                                 .userId(trip.getUser().getId())
