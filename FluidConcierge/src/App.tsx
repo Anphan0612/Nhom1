@@ -9,6 +9,7 @@ import Places from './pages/admin/Places';
 import Users from './pages/admin/Users';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ActivitySelection from './pages/ActivitySelection';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 
@@ -24,9 +25,11 @@ function App() {
           {/* Protected User Routes */}
           <Route element={<ProtectedRoute />}>
             <Route element={<UserLayout />}>
-              <Route path="/" element={<Dashboard />} />
+              <Route index element={<Explore />} />
+              <Route path="/my-trips" element={<Dashboard />} />
               <Route path="/plan" element={<PlanTrip />} />
-              <Route path="/explore" element={<Explore />} />
+              <Route path="/explore" element={<Navigate to="/" replace />} />
+              <Route path="/selection/:id" element={<ActivitySelection />} />
               <Route path="/itinerary/:id" element={<Itinerary />} />
             </Route>
           </Route>

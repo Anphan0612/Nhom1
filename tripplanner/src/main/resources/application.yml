@@ -18,7 +18,7 @@ spring:
       hibernate:
         type:
           preferred_uuid_jdbc_type: CHAR
-
+  
 server:
   port: 8081
 

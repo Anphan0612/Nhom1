@@ -152,14 +152,14 @@ export default function PlanTrip() {
         budget: budgetValue,
       });
 
-      // Step 2: Generate AI itinerary
+      // Step 2: Generate AI itinerary (now returns candidates)
       await tripApi.generate(trip.id, {
         preferences: buildPreferences(),
         language: 'Vietnamese',
       });
 
-      // Step 3: Navigate to itinerary view
-      navigate(`/itinerary/${trip.id}`);
+      // Step 3: Navigate to selection view
+      navigate(`/selection/${trip.id}`);
     } catch (err: unknown) {
       const message =
         err && typeof err === 'object' && 'response' in err

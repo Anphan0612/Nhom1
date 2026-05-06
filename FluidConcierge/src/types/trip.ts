@@ -1,5 +1,5 @@
 // Trip status enum matching backend TripStatus
-export type TripStatus = 'DRAFT' | 'GENERATING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+export type TripStatus = 'PLANNING' | 'GENERATING' | 'SELECTING_ACTIVITIES' | 'GENERATED' | 'CONFIRMED';
 
 // Budget tier for UI slider (maps to budget value)
 export type BudgetTier = 'budget' | 'standard' | 'luxury';
@@ -32,6 +32,17 @@ export interface TripResponse {
   totalCost: number;
   status: TripStatus;
   createdAt: string; // ISO datetime string
+  candidates?: ActivityCandidateResponse[];
+  itineraries?: ItineraryResponse[];
+}
+
+export interface ActivityCandidateResponse {
+  id: string;
+  name: string;
+  description: string;
+  location: string;
+  cost: number;
+  selected: boolean;
 }
 
 export interface ActivityResponse {
@@ -57,8 +68,11 @@ export interface ItineraryResponse {
 
 export interface GenerateResponse {
   tripId: string;
+  status: TripStatus;
   aiLogId: number;
-  message: string;
+  itineraries?: ItineraryResponse[];
+  candidates?: ActivityCandidateResponse[];
+  generatedAt: string;
 }
 
 // --- API Request Types ---

@@ -1,5 +1,6 @@
 package com.example.tripplanner.application.usecase;
 
+import com.example.tripplanner.application.dto.ActivityCandidateResponse;
 import com.example.tripplanner.application.dto.GenerateResponse;
 import com.example.tripplanner.application.dto.RegenerateRequest;
 import com.example.tripplanner.application.mapper.TripMapper;
@@ -32,21 +33,23 @@ public class RegenerateTripPlanUseCase {
 
         itineraryRepository.deleteByTripId(tripId);
         trip.getItineraries().clear();
+        if (trip.getCandidates() != null) trip.getCandidates().clear();
 
         Long aiLogId = orchestrator.orchestrateRegenerate(trip, request);
 
-        trip.setStatus(TripStatus.GENERATED);
+        trip.setStatus(TripStatus.SELECTING_ACTIVITIES);
         tripRepository.save(trip);
 
         return GenerateResponse.builder()
                 .tripId(trip.getId())
-                .status(TripStatus.GENERATED)
+                .status(TripStatus.SELECTING_ACTIVITIES)
                 .aiLogId(aiLogId)
-                .itineraries(
-                        trip.getItineraries().stream()
-                                .map(TripMapper::toItineraryResponse)
-                                .collect(Collectors.toList())
-                )
+                .itineraries(trip.getItineraries().stream()
+                        .map(TripMapper::toItineraryResponse)
+                        .collect(Collectors.toList()))
+                .candidates(trip.getCandidates().stream()
+                        .map(TripMapper::toActivityCandidateResponse)
+                        .collect(Collectors.toList()))
                 .generatedAt(LocalDateTime.now())
                 .build();
     }

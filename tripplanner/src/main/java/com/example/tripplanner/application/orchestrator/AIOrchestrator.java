@@ -26,6 +26,7 @@ public class AIOrchestrator {
 
     /**
      * First-time AI trip generation.
+     * 
      * @return persisted AiLog ID for traceability
      */
     public Long orchestrate(Trip trip, GenerateRequest request) {
@@ -38,6 +39,7 @@ public class AIOrchestrator {
 
     /**
      * Re-run AI generation with optional user feedback.
+     * 
      * @return persisted AiLog ID for traceability
      */
     public Long orchestrateRegenerate(Trip trip, RegenerateRequest request) {
@@ -50,8 +52,9 @@ public class AIOrchestrator {
 
     /**
      * Regenerate a single day/itinerary with optional user feedback.
+     * 
      * @param itinerary The specific day to regenerate
-     * @param feedback Optional user feedback
+     * @param feedback  Optional user feedback
      */
     public void orchestrateSingleDay(Itinerary itinerary, String feedback, String language) {
         Trip trip = itinerary.getTrip();
@@ -62,7 +65,7 @@ public class AIOrchestrator {
         for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
             state.retryCount = attempt;
             log.info("AI call attempt {}/{} for itinerary={} day={}",
-                attempt + 1, MAX_RETRIES, itinerary.getId(), itinerary.getDayNumber());
+                    attempt + 1, MAX_RETRIES, itinerary.getId(), itinerary.getDayNumber());
 
             AiResponse aiResponse = aiServicePort.callAi(state.currentPrompt);
             state.accumulate(aiResponse);
@@ -79,8 +82,10 @@ public class AIOrchestrator {
             state.currentPrompt = buildRetryPrompt(validation.getErrorMessage(), aiResponse.content());
         }
 
-        // Note: Activities are parsed and saved by the validator/parser in the actual implementation
-        // This is a simplified version - you may need to add activity parsing logic here
+        // Note: Activities are parsed and saved by the validator/parser in the actual
+        // implementation
+        // This is a simplified version - you may need to add activity parsing logic
+        // here
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -131,35 +136,30 @@ public class AIOrchestrator {
     private String buildPrompt(Trip trip, String extra, String language) {
         int days = (int) (trip.getEndDate().toEpochDay() - trip.getStartDate().toEpochDay()) + 1;
         String base = String.format(
-                "Generate a %d-day travel itinerary for %s from %s to %s. Budget: %s. " +
-                "IMPORTANT RULES:\n" +
-                "1. You MUST use REAL, existing names of hotels, resorts, and restaurants (e.g. 'The Cliff Resort & Residences', 'Cay Bang Restaurant').\n" +
-                "2. DO NOT use generic placeholder names like 'Resort', 'Local Eatery', 'Beach', or 'Hotel'.\n" +
-                "3. All output text (summary, name, description) MUST be entirely in %s language. Only keep English for proper nouns if necessary.\n" +
-                "4. You MUST return ONLY valid JSON matching this exact schema, with no markdown, no explanation:\n" +
-                "{\n" +
-                "  \"totalCost\": <number>,\n" +
-                "  \"recommendedHotels\": [ { \"name\": \"\", \"description\": \"\", \"location\": \"\", \"priceLevel\": \"$$\" } ],\n" +
-                "  \"recommendedRestaurants\": [ { \"name\": \"\", \"description\": \"\", \"location\": \"\", \"priceLevel\": \"$$\" } ],\n" +
-                "  \"days\": [\n" +
-                "    {\n" +
-                "      \"dayNumber\": 1,\n" +
-                "      \"summary\": \"<string>\",\n" +
-                "      \"activities\": [\n" +
-                "        {\n" +
-                "          \"name\": \"<string>\",\n" +
-                "          \"description\": \"<string>\",\n" +
-                "          \"location\": \"<string>\",\n" +
-                "          \"startTime\": \"09:00\",\n" +
-                "          \"endTime\": \"10:30\",\n" +
-                "          \"cost\": <number> (ALWAYS provide the full amount in VND, e.g. 500000, NOT 500)\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}",
-                days, trip.getDestination(), trip.getStartDate(), trip.getEndDate(), trip.getBudget(), language
-        );
+                "Generate a pool of 20-25 diverse activities and experiences for a trip to %s from %s to %s. Budget: %s. "
+                        +
+                        "IMPORTANT RULES:\n" +
+                        "1. You MUST provide at least 20-25 distinct activity candidates. Include a mix of sightseeing, dining, adventure, and relaxation.\n"
+                        +
+                        "2. You MUST use REAL, existing names of locations, attractions, and restaurants.\n" +
+                        "3. All output text (summary, name, description) MUST be entirely in %s language.\n" +
+                        "4. You MUST return ONLY valid JSON matching this exact schema:\n" +
+                        "{\n" +
+                        "  \"totalEstimatedCost\": <number>,\n" +
+                        "  \"recommendedHotels\": [ { \"name\": \"\", \"description\": \"\", \"location\": \"\", \"priceLevel\": \"$$\" } ],\n"
+                        +
+                        "  \"recommendedRestaurants\": [ { \"name\": \"\", \"description\": \"\", \"location\": \"\", \"priceLevel\": \"$$\" } ],\n"
+                        +
+                        "  \"candidates\": [\n" +
+                        "    {\n" +
+                        "      \"name\": \"<string>\",\n" +
+                        "      \"description\": \"<string>\",\n" +
+                        "      \"location\": \"<string>\",\n" +
+                        "      \"cost\": <number> (ALWAYS provide the full amount in VND)\n" +
+                        "    }\n" +
+                        "  ]\n" +
+                        "}",
+                trip.getDestination(), trip.getStartDate(), trip.getEndDate(), trip.getBudget(), language);
         return !extra.isBlank() ? base + "\nUser context: " + extra : base;
     }
 
@@ -167,26 +167,28 @@ public class AIOrchestrator {
         long totalDays = (trip.getEndDate().toEpochDay() - trip.getStartDate().toEpochDay()) + 1;
         String base = String.format(
                 "Generate activities for day %d of a trip to %s on %s. Budget: %s. " +
-                "IMPORTANT RULES:\n" +
-                "1. You MUST use REAL, existing names of locations and restaurants. DO NOT use generic placeholders like 'Resort' or 'Local Eatery'.\n" +
-                "2. All output text (summary, name, description) MUST be entirely in %s language. Only keep English for proper nouns if necessary.\n" +
-                "3. You MUST return ONLY valid JSON matching this exact schema:\n" +
-                "{\n" +
-                "  \"totalCost\": <number>,\n" +
-                "  \"days\": [\n" +
-                "    {\n" +
-                "      \"dayNumber\": %d,\n" +
-                "      \"summary\": \"<string>\",\n" +
-                "      \"activities\": [\n" +
-                "        { \"name\": \"\", \"description\": \"\", \"location\": \"\", \"startTime\": \"09:00\", \"endTime\": \"10:30\", \"cost\": <number> (VND) }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}",
+                        "IMPORTANT RULES:\n" +
+                        "1. You MUST use REAL, existing names of locations and restaurants. DO NOT use generic placeholders like 'Resort' or 'Local Eatery'.\n"
+                        +
+                        "2. All output text (summary, name, description) MUST be entirely in %s language. Only keep English for proper nouns if necessary.\n"
+                        +
+                        "3. You MUST return ONLY valid JSON matching this exact schema:\n" +
+                        "{\n" +
+                        "  \"totalCost\": <number>,\n" +
+                        "  \"days\": [\n" +
+                        "    {\n" +
+                        "      \"dayNumber\": %d,\n" +
+                        "      \"summary\": \"<string>\",\n" +
+                        "      \"activities\": [\n" +
+                        "        { \"name\": \"\", \"description\": \"\", \"location\": \"\", \"startTime\": \"09:00\", \"endTime\": \"10:30\", \"cost\": <number> (VND) }\n"
+                        +
+                        "      ]\n" +
+                        "    }\n" +
+                        "  ]\n" +
+                        "}",
                 itinerary.getDayNumber(), trip.getDestination(), itinerary.getDate(),
                 trip.getBudget().divide(java.math.BigDecimal.valueOf(totalDays), 2, java.math.RoundingMode.HALF_UP),
-                language, itinerary.getDayNumber()
-        );
+                language, itinerary.getDayNumber());
         return !feedback.isBlank() ? base + "\nUser feedback: " + feedback : base;
     }
 
@@ -205,7 +207,7 @@ public class AIOrchestrator {
     // ─────────────────────────────────────────────────────────────────────────
 
     private AiLog saveLog(Trip trip, String originalPrompt, PipelineState state,
-                          String userFeedback, String promptVersion, long executionTime) {
+            String userFeedback, String promptVersion, long executionTime) {
         String userInput = buildUserInput(trip, userFeedback);
 
         AiLog aiLog = AiLog.builder()
@@ -239,10 +241,14 @@ public class AIOrchestrator {
     // ─────────────────────────────────────────────────────────────────────────
 
     private ValidationType detectErrorType(String errorMessage) {
-        if (errorMessage == null) return ValidationType.NONE;
-        if (errorMessage.startsWith("Invalid JSON")) return ValidationType.FORMAT;
-        if (errorMessage.startsWith("Schema error")) return ValidationType.SCHEMA;
-        if (errorMessage.startsWith("Business error")) return ValidationType.BUSINESS;
+        if (errorMessage == null)
+            return ValidationType.NONE;
+        if (errorMessage.startsWith("Invalid JSON"))
+            return ValidationType.FORMAT;
+        if (errorMessage.startsWith("Schema error"))
+            return ValidationType.SCHEMA;
+        if (errorMessage.startsWith("Business error"))
+            return ValidationType.BUSINESS;
         return ValidationType.NONE;
     }
 

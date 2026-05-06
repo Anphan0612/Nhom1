@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/explore")
+@RequestMapping("/api/v1/explore")
 @RequiredArgsConstructor
 public class ExploreController {
 
@@ -41,6 +41,9 @@ public class ExploreController {
 
     @GetMapping("/recommendation")
     public ResponseEntity<List<ExploreItem>> getRecommendedItems(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal == null) {
+            return ResponseEntity.ok(List.of());
+        }
         return ResponseEntity.ok(getRecommendedExploreItemsUseCase.execute(userPrincipal.getId()));
     }
 }

@@ -28,6 +28,9 @@ public class Trip {
 
     @Builder.Default
     private List<Recommendation> recommendations = new ArrayList<>();
+    
+    @Builder.Default
+    private List<ActivityCandidate> candidates = new ArrayList<>();
 
     public java.math.BigDecimal getTotalCost() {
         if (itineraries == null) return java.math.BigDecimal.ZERO;

@@ -98,7 +98,7 @@ class ParsePipeline:
 
         # --- TRAVELER MAPPING ---
         if not entities_dict.get("travelers"):
-            group_type = entities_dict.get("group_type", "").lower()
+            group_type = (entities_dict.get("group_type") or "").lower()
             if "một mình" in group_type or "solo" in group_type:
                 entities_dict["travelers"] = 1
             elif "hai người" in group_type:

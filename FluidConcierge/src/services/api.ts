@@ -7,6 +7,7 @@ import type {
   GenerateRequest,
   RegenerateRequest,
   ActivityResponse,
+  ActivityCandidateResponse,
   ActivityRequest,
   ActivityUpdateRequest,
 } from '../types/trip';
@@ -45,6 +46,12 @@ export const tripApi = {
 
   regenerate: (tripId: string, body?: RegenerateRequest): Promise<GenerateResponse> =>
     apiClient.post(`/trips/${tripId}/regenerate`, body ?? {}).then(r => r.data),
+
+  getCandidates: (tripId: string): Promise<ActivityCandidateResponse[]> =>
+    apiClient.get(`/trips/${tripId}/candidates`).then(r => r.data),
+
+  finalize: (tripId: string, activityIds: string[]): Promise<TripResponse> =>
+    apiClient.post(`/trips/${tripId}/finalize`, { activityIds }).then(r => r.data),
 };
 
 // ── Itinerary endpoints ─────────────────────────────────────────────────────

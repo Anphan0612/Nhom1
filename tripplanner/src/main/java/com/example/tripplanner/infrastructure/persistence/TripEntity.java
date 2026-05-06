@@ -58,4 +58,10 @@ public class TripEntity {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<ItineraryEntity> itineraries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<ActivityCandidateEntity> candidates = new ArrayList<>();
 }

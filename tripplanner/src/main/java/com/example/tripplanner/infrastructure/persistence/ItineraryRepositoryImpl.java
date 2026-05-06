@@ -44,6 +44,7 @@ public class ItineraryRepositoryImpl implements ItineraryRepository {
     @Override
     @Transactional
     public void deleteByTripId(UUID tripId) {
+        jpaRepository.deleteActivitiesByTripId(tripId);
         jpaRepository.deleteByTripId(tripId);
     }
 }

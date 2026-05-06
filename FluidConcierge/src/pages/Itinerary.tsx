@@ -245,12 +245,21 @@ export default function Itinerary() {
         setTrip(tripData);
         setItineraries(itineraryData);
 
+        // Redirect to selection if status is SELECTING_ACTIVITIES
+        if (tripData.status === 'SELECTING_ACTIVITIES') {
+          navigate(`/selection/${tripId}`);
+          return;
+        }
+
         // Poll while still GENERATING
         if (tripData.status === 'GENERATING') {
           interval = setInterval(async () => {
             const refreshed = await tripApi.getById(tripId);
             setTrip(refreshed);
-            if (refreshed.status !== 'GENERATING') {
+            if (refreshed.status === 'SELECTING_ACTIVITIES') {
+              clearInterval(interval);
+              navigate(`/selection/${tripId}`);
+            } else if (refreshed.status !== 'GENERATING') {
               clearInterval(interval);
               const freshItineraries = await itineraryApi.getByTrip(tripId);
               setItineraries(freshItineraries);
@@ -362,59 +371,75 @@ export default function Itinerary() {
   const sortedItineraries = [...itineraries].sort((a, b) => a.dayNumber - b.dayNumber);
 
   return (
-    <div className="p-8 min-h-[calc(100vh-64px)] bg-[#f7f9fb] dark:bg-background">
-      <header className="max-w-6xl mx-auto mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <nav className="flex items-center gap-2 text-sm text-on-surface-variant mb-4">
-            <button onClick={() => navigate('/')} className="hover:text-primary transition-colors">Chuyến đi của tôi</button>
-            <span className="material-symbols-outlined text-xs">chevron_right</span>
-            <span className="font-medium text-primary">{trip.destination}</span>
-          </nav>
-          <h1 className="text-4xl font-headline font-extrabold text-on-surface tracking-tight leading-tight">
-            Chuyến đi {trip.destination}
-          </h1>
-          <div className="flex items-center gap-6 mt-4 flex-wrap">
-            <div className="flex items-center gap-2 text-on-surface-variant">
-              <span className="material-symbols-outlined text-sky-600">calendar_today</span>
-              <span className="font-medium">{new Date(trip.startDate).toLocaleDateString('vi-VN')} – {new Date(trip.endDate).toLocaleDateString('vi-VN')}</span>
-            </div>
+    <div className="min-h-[calc(100vh-64px)] bg-[#f0fdfa] dark:bg-slate-950">
+      {/* Hero Header Section */}
+      <div className="relative w-full bg-emerald-900 overflow-hidden mb-12">
+        {/* Animated Background Elements */}
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[150%] bg-emerald-500/20 blur-[120px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[40%] h-[120%] bg-teal-400/20 blur-[100px] rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${trip.status === 'ACTIVE' ? 'bg-secondary-fixed text-on-secondary-fixed' :
-                trip.status === 'COMPLETED' ? 'bg-primary-fixed text-on-primary-fixed' :
-                  'bg-surface-container-highest text-on-surface-variant'
-              }`}>
-              {trip.status === 'ACTIVE' ? 'Đang hoạt động' : trip.status === 'COMPLETED' ? 'Hoàn thành' : trip.status}
+        <header className="relative max-w-6xl mx-auto px-6 py-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="z-10">
+            <nav className="flex items-center gap-2 text-sm text-emerald-200/80 mb-6">
+              <button onClick={() => navigate('/')} className="hover:text-white transition-colors">Chuyến đi của tôi</button>
+              <span className="material-symbols-outlined text-[10px]">arrow_forward_ios</span>
+              <span className="font-semibold text-teal-300">{trip.destination}</span>
+            </nav>
+
+            <h1 className="text-5xl md:text-6xl font-display font-extrabold text-white tracking-tight leading-none mb-6">
+              {trip.destination}
+            </h1>
+
+            <div className="flex items-center gap-6 flex-wrap">
+              <div className="flex items-center gap-3 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10 text-white">
+                <span className="material-symbols-outlined text-teal-400 text-sm">calendar_month</span>
+                <span className="text-sm font-semibold">
+                  {new Date(trip.startDate).toLocaleDateString('vi-VN')} – {new Date(trip.endDate).toLocaleDateString('vi-VN')}
+                </span>
+              </div>
+
+              <div className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border ${trip.status === 'CONFIRMED'
+                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300'
+                : trip.status === 'GENERATED'
+                  ? 'bg-teal-500/20 border-teal-500/50 text-teal-300'
+                  : 'bg-white/10 border-white/20 text-white/80'
+                }`}>
+                {trip.status === 'CONFIRMED' ? 'Đã xác nhận' :
+                  trip.status === 'GENERATED' ? 'Đã lên lịch' :
+                    trip.status === 'SELECTING_ACTIVITIES' ? 'Đang chọn hoạt động' : 'Đang lập kế hoạch'}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 bg-surface-container-lowest text-on-surface font-semibold rounded-full border border-outline-variant/15 hover:bg-surface-container-low transition-all">
-            <span className="material-symbols-outlined">share</span>
-            Chia sẻ
-          </button>
-          <button
-            id="btn-regenerate"
-            onClick={handleRegenerate}
-            disabled={isRegenerating}
-            className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-full shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {isRegenerating ? (
-              <span className="material-symbols-outlined animate-spin">progress_activity</span>
-            ) : (
-              <span className="material-symbols-outlined">auto_awesome</span>
-            )}
-            {isRegenerating ? 'Đang tạo lại...' : 'Tạo lại'}
-          </button>
-        </div>
-      </header>
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="flex gap-4 z-10">
+            <button className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 backdrop-blur-md transition-all group">
+              <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">share</span>
+              Chia sẻ
+            </button>
+            <button
+              id="btn-regenerate"
+              onClick={handleRegenerate}
+              disabled={isRegenerating}
+              className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-emerald-950 font-black rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isRegenerating ? (
+                <span className="material-symbols-outlined animate-spin">progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined">auto_awesome</span>
+              )}
+              {isRegenerating ? 'Đang tạo...' : 'Tạo lại'}
+            </button>
+          </div>
+        </header>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column: Daily Timeline */}
         <div className="lg:col-span-7 space-y-8">
           {sortedItineraries.length === 0 ? (
-            <div className="bg-surface-container-lowest rounded-xl p-12 text-center">
-              <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-4 block">hourglass_empty</span>
-              <p className="text-on-surface-variant">Lịch trình đang được tạo, vui lòng đợi...</p>
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-emerald-100 dark:border-emerald-900/50 shadow-premium">
+              <span className="material-symbols-outlined text-5xl text-emerald-300 mb-4 block">hourglass_empty</span>
+              <p className="text-emerald-900/60 dark:text-emerald-400/60 font-medium">Lịch trình đang được tạo, vui lòng đợi...</p>
             </div>
           ) : (
             sortedItineraries.map((itinerary, idx) => (
@@ -434,16 +459,16 @@ export default function Itinerary() {
         {/* Right Column: Stats */}
         <div className="lg:col-span-5 space-y-8">
           {/* Stats Summary */}
-          <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
-            <h3 className="text-xl font-headline font-semibold text-on-surface mb-6">Thông tin</h3>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-premium border border-emerald-100 dark:border-emerald-900/50">
+            <h3 className="text-xl font-display font-bold text-emerald-950 dark:text-emerald-50 mb-6">Thông tin chuyến đi</h3>
             <div className="grid grid-cols-1 gap-4">
-              <div className="p-4 rounded-xl bg-surface-container-low">
-                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Hoạt động</span>
-                <p className="text-lg font-bold text-on-surface mt-1">{itineraries.flatMap(i => i.activities).length} địa điểm</p>
+              <div className="p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30">
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Quy mô</span>
+                <p className="text-2xl font-black text-emerald-900 dark:text-emerald-100 mt-1">{itineraries.flatMap(i => i.activities).length} địa điểm</p>
               </div>
-              <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
-                <span className="text-xs font-bold text-primary uppercase tracking-wider">Tổng chi phí dự tính</span>
-                <p className="text-lg font-bold text-primary mt-1">
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20">
+                <span className="text-[10px] font-bold text-emerald-100 uppercase tracking-widest opacity-80">Tổng chi phí dự tính</span>
+                <p className="text-3xl font-black mt-1">
                   {formatCurrency(itineraries.reduce((sum, itin) => sum + itin.activities.reduce((s, a) => s + (a.cost || 0), 0), 0))}
                 </p>
               </div>
@@ -451,23 +476,24 @@ export default function Itinerary() {
           </div>
 
           {/* AI Suggestion */}
-          <div className="bg-gradient-to-br from-secondary/10 to-primary/5 rounded-xl p-8 border border-primary/10 relative overflow-hidden">
+          <div className="bg-emerald-900 rounded-3xl p-8 border border-emerald-800 relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full"></div>
             <div className="relative z-10">
-              <span className="bg-white/90 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4 inline-block">Gợi ý AI</span>
-              <h4 className="text-lg font-headline font-bold text-on-surface mb-2">Muốn thay đổi gì không?</h4>
-              <p className="text-sm text-on-surface-variant mb-6">Nhấn "Tạo lại" để AI tạo một lịch trình mới cho cùng chuyến đi này.</p>
+              <span className="bg-emerald-400 text-emerald-950 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 inline-block">Trí tuệ nhân tạo</span>
+              <h4 className="text-2xl font-display font-bold text-white mb-3 leading-tight">Bạn muốn tinh chỉnh thêm?</h4>
+              <p className="text-emerald-200/70 text-sm mb-8">AI sẵn sàng tạo lại lịch trình hoàn toàn mới dựa trên sở thích của bạn.</p>
               <button
                 onClick={handleRegenerate}
                 disabled={isRegenerating}
-                className="px-6 py-2 bg-primary text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-70"
+                className="w-full py-4 bg-white text-emerald-900 rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-50 transition-all disabled:opacity-70"
               >
-                {isRegenerating ? 'Đang tạo...' : 'Tạo lại ngay'}
+                {isRegenerating ? 'Đang xử lý...' : 'Tạo lại lịch trình ngay'}
               </button>
             </div>
             <span
-              className="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl text-primary/5 rotate-12"
+              className="material-symbols-outlined absolute -right-6 -bottom-6 text-[10rem] text-white/5 rotate-12"
               style={{ fontVariationSettings: "'FILL' 1" }}
-            >lightbulb</span>
+            >auto_awesome</span>
           </div>
         </div>
       </div>

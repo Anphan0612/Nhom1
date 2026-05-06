@@ -2,10 +2,8 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function UserLayout() {
-  const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const isDashboard = location.pathname === '/';
 
   const handleLogout = () => {
     logout();
@@ -27,22 +25,16 @@ export default function UserLayout() {
           {/* Center: Navigation */}
           <nav className="hidden md:flex items-center bg-slate-100/50 dark:bg-slate-800/50 p-1 rounded-full border border-outline-variant/10">
             <NavLink 
-              to="/explore" 
-              className={({ isActive }) => `px-6 py-1.5 rounded-full text-sm font-medium transition-all ${isActive ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'}`}
+              to="/" 
+              className={({ isActive }) => `px-6 py-1.5 rounded-full text-sm font-medium transition-all ${isActive ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'}`}
             >
               Explore
             </NavLink>
             <NavLink 
-              to="/" 
-              className={({ isActive }) => `px-6 py-1.5 rounded-full text-sm font-medium transition-all ${isActive ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'}`}
+              to="/my-trips" 
+              className={({ isActive }) => `px-6 py-1.5 rounded-full text-sm font-medium transition-all ${isActive ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'}`}
             >
               My Trips
-            </NavLink>
-            <NavLink 
-              to="/plan" 
-              className={({ isActive }) => `px-6 py-1.5 rounded-full text-sm font-medium transition-all ${isActive ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'}`}
-            >
-              Plan New
             </NavLink>
           </nav>
 
@@ -80,24 +72,29 @@ export default function UserLayout() {
 
       {/* Mobile Navigation Shell */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl flex justify-around items-center h-20 px-4 border-t border-slate-100 dark:border-slate-800 z-50">
-        <NavLink to="/" className="flex flex-col items-center gap-1 text-primary">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
-          <span className="text-[10px] font-bold uppercase tracking-tighter font-label">Home</span>
+        <NavLink to="/" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-primary' : 'text-slate-400'}`}>
+          {({ isActive }) => (
+            <>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "" }}>explore</span>
+              <span className="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
+            </>
+          )}
         </NavLink>
-        <NavLink to="/explore" className="flex flex-col items-center gap-1 text-on-surface-variant">
-          <span className="material-symbols-outlined">explore</span>
-          <span className="text-[10px] font-bold uppercase tracking-tighter font-label">Explore</span>
+        <NavLink to="/my-trips" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-primary' : 'text-slate-400'}`}>
+          {({ isActive }) => (
+            <>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "" }}>dashboard</span>
+              <span className="text-[10px] font-bold uppercase tracking-tighter">My Trips</span>
+            </>
+          )}
         </NavLink>
-        <NavLink to="/plan" className="-mt-12 bg-primary rounded-full p-4 shadow-lg shadow-primary/40 text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-transform">
-          <span className="material-symbols-outlined text-3xl">add</span>
-        </NavLink>
-        <NavLink to="/saved" className="flex flex-col items-center gap-1 text-on-surface-variant">
-          <span className="material-symbols-outlined">favorite</span>
-          <span className="text-[10px] font-bold uppercase tracking-tighter font-label">Saved</span>
-        </NavLink>
-        <NavLink to="/profile" className="flex flex-col items-center gap-1 text-on-surface-variant">
-          <span className="material-symbols-outlined">person</span>
-          <span className="text-[10px] font-bold uppercase tracking-tighter font-label">Profile</span>
+        <NavLink to="/profile" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-primary' : 'text-slate-400'}`}>
+          {({ isActive }) => (
+            <>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "" }}>person</span>
+              <span className="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+            </>
+          )}
         </NavLink>
       </nav>
     </div>

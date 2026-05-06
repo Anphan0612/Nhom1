@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "activities", indexes = {
-    @Index(name = "idx_activity_itinerary_id", columnList = "itinerary_id")
+        @Index(name = "idx_activity_itinerary_id", columnList = "itinerary_id")
 })
 @Data
 @NoArgsConstructor

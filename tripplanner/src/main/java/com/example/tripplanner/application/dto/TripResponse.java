@@ -22,4 +22,6 @@ public class TripResponse {
     private LocalDateTime createdAt;
     private java.math.BigDecimal totalCost;
     private java.util.List<RecommendationResponse> recommendations;
+    private java.util.List<ActivityCandidateResponse> candidates;
+    private java.util.List<ItineraryResponse> itineraries;
 }

@@ -40,32 +40,48 @@ public class AiResponseValidator {
     }
 
     private ValidationResult checkSchema(JsonNode root) {
-        if (!root.has("days") || !root.get("days").isArray()) {
-            return ValidationResult.fail("Schema error: 'days' array is missing");
+        // Support either 'days' (itinerary) or 'candidates' (discovery pool)
+        boolean hasDays = root.has("days") && root.get("days").isArray();
+        boolean hasCandidates = root.has("candidates") && root.get("candidates").isArray();
+
+        if (!hasDays && !hasCandidates) {
+            return ValidationResult.fail("Schema error: neither 'days' nor 'candidates' array is found");
         }
-        for (JsonNode day : root.get("days")) {
-            if (!day.has("activities") || !day.get("activities").isArray()) {
-                return ValidationResult.fail("Schema error: 'activities' array is missing in one or more days");
+
+        if (hasDays) {
+            for (JsonNode day : root.get("days")) {
+                if (!day.has("activities") || !day.get("activities").isArray()) {
+                    return ValidationResult.fail("Schema error: 'activities' array is missing in one or more days");
+                }
             }
         }
-        // totalCost is optional — will be computed from activities if missing
+        
         return ValidationResult.ok();
     }
 
     private ValidationResult checkBusinessRules(JsonNode root) {
-        JsonNode days = root.get("days");
-        if (days.isEmpty()) {
-            return ValidationResult.fail("Business error: days array must not be empty");
-        }
-        for (JsonNode day : days) {
-            if (day.get("activities").isEmpty()) {
-                return ValidationResult.fail("Business error: each day must have at least 1 activity");
+        if (root.has("days")) {
+            JsonNode days = root.get("days");
+            if (days.isEmpty()) {
+                return ValidationResult.fail("Business error: 'days' array must not be empty");
+            }
+            for (JsonNode day : days) {
+                if (day.get("activities").isEmpty()) {
+                    return ValidationResult.fail("Business error: each day must have at least 1 activity");
+                }
             }
         }
-        // totalCost is optional — if present, validate it; if absent, parser will compute from activities
-        JsonNode totalCost = root.get("totalCost");
+
+        if (root.has("candidates")) {
+            JsonNode candidates = root.get("candidates");
+            if (candidates.isEmpty()) {
+                return ValidationResult.fail("Business error: 'candidates' array must not be empty");
+            }
+        }
+
+        JsonNode totalCost = root.has("totalCost") ? root.get("totalCost") : root.get("totalEstimatedCost");
         if (totalCost != null && totalCost.isNumber() && totalCost.asDouble() < 0) {
-            return ValidationResult.fail("Business error: totalCost must be >= 0");
+            return ValidationResult.fail("Business error: cost must be >= 0");
         }
         return ValidationResult.ok();
     }

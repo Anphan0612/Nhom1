@@ -14,5 +14,6 @@ public class GenerateResponse {
     private TripStatus status;
     private Long aiLogId;
     private List<ItineraryResponse> itineraries;
+    private List<ActivityCandidateResponse> candidates;
     private LocalDateTime generatedAt;
 }

@@ -13,6 +13,10 @@ public interface JpaItineraryRepository extends JpaRepository<ItineraryEntity, U
     List<ItineraryEntity> findByTripIdOrderByDayNumberAsc(UUID tripId);
 
     @Modifying
+    @Query("DELETE FROM ActivityEntity a WHERE a.itinerary.trip.id = :tripId")
+    void deleteActivitiesByTripId(@Param("tripId") UUID tripId);
+
+    @Modifying
     @Query("DELETE FROM ItineraryEntity i WHERE i.trip.id = :tripId")
     void deleteByTripId(@Param("tripId") UUID tripId);
 }

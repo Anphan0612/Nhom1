@@ -11,7 +11,8 @@ public class PersistenceMapper {
 
     // User mapping
     public UserEntity toEntity(User domain) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
         return UserEntity.builder()
                 .id(domain.getId())
                 .email(domain.getEmail())
@@ -23,7 +24,8 @@ public class PersistenceMapper {
     }
 
     public User toDomain(UserEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
         return User.builder()
                 .id(entity.getId())
                 .email(entity.getEmail())
@@ -36,7 +38,8 @@ public class PersistenceMapper {
 
     // Trip mapping
     public TripEntity toEntity(Trip domain) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
         TripEntity entity = TripEntity.builder()
                 .id(domain.getId())
                 .user(toEntity(domain.getUser()))
@@ -48,17 +51,24 @@ public class PersistenceMapper {
                 .status(domain.getStatus())
                 .createdAt(domain.getCreatedAt())
                 .build();
-        
+
         if (domain.getItineraries() != null) {
             entity.setItineraries(domain.getItineraries().stream()
                     .map(it -> toEntity(it, entity))
+                    .collect(Collectors.toList()));
+        }
+
+        if (domain.getCandidates() != null) {
+            entity.setCandidates(domain.getCandidates().stream()
+                    .map(can -> toEntity(can, entity))
                     .collect(Collectors.toList()));
         }
         return entity;
     }
 
     public Trip toDomain(TripEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
         Trip domain = Trip.builder()
                 .id(entity.getId())
                 .user(toDomain(entity.getUser()))
@@ -75,8 +85,19 @@ public class PersistenceMapper {
             domain.setItineraries(entity.getItineraries().stream()
                     .map(itEntity -> {
                         Itinerary it = toDomain(itEntity);
-                        if (it != null) it.setTrip(domain);
+                        if (it != null)
+                            it.setTrip(domain);
                         return it;
+                    })
+                    .collect(Collectors.toList()));
+        }
+
+        if (entity.getCandidates() != null) {
+            domain.setCandidates(entity.getCandidates().stream()
+                    .map(canEntity -> {
+                        ActivityCandidate can = toDomain(canEntity);
+                        // can doesn't have a trip reference in domain model for now
+                        return can;
                     })
                     .collect(Collectors.toList()));
         }
@@ -85,12 +106,14 @@ public class PersistenceMapper {
 
     // Itinerary mapping
     public ItineraryEntity toEntity(Itinerary domain) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
         return toEntity(domain, toEntity(domain.getTrip()));
     }
 
     public ItineraryEntity toEntity(Itinerary domain, TripEntity tripEntity) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
         ItineraryEntity entity = ItineraryEntity.builder()
                 .id(domain.getId())
                 .trip(tripEntity)
@@ -99,7 +122,7 @@ public class PersistenceMapper {
                 .summary(domain.getSummary())
                 .createdAt(domain.getCreatedAt())
                 .build();
-        
+
         if (domain.getActivities() != null) {
             entity.setActivities(domain.getActivities().stream()
                     .map(act -> toEntity(act, entity))
@@ -109,7 +132,8 @@ public class PersistenceMapper {
     }
 
     public Itinerary toDomain(ItineraryEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
         Itinerary domain = Itinerary.builder()
                 .id(entity.getId())
                 .dayNumber(entity.getDayNumber())
@@ -126,7 +150,8 @@ public class PersistenceMapper {
             domain.setActivities(entity.getActivities().stream()
                     .map(actEntity -> {
                         Activity act = toDomain(actEntity);
-                        if (act != null) act.setItinerary(domain);
+                        if (act != null)
+                            act.setItinerary(domain);
                         return act;
                     })
                     .collect(Collectors.toList()));
@@ -136,12 +161,14 @@ public class PersistenceMapper {
 
     // Activity mapping
     public ActivityEntity toEntity(Activity domain) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
         return toEntity(domain, toEntity(domain.getItinerary()));
     }
 
     public ActivityEntity toEntity(Activity domain, ItineraryEntity itineraryEntity) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
         return ActivityEntity.builder()
                 .id(domain.getId())
                 .itinerary(itineraryEntity)
@@ -157,7 +184,8 @@ public class PersistenceMapper {
     }
 
     public Activity toDomain(ActivityEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
         Activity domain = Activity.builder()
                 .id(entity.getId())
                 .name(entity.getName())
@@ -169,17 +197,18 @@ public class PersistenceMapper {
                 .activityOrder(entity.getActivityOrder())
                 .createdAt(entity.getCreatedAt())
                 .build();
-                
+
         if (entity.getItinerary() != null) {
             domain.setItinerary(Itinerary.builder().id(entity.getItinerary().getId()).build());
         }
-        
+
         return domain;
     }
 
     // AiLog mapping
     public AiLogEntity toEntity(AiLog domain) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
         return AiLogEntity.builder()
                 .id(domain.getId())
                 .tripId(domain.getTripId())
@@ -201,7 +230,8 @@ public class PersistenceMapper {
     }
 
     public AiLog toDomain(AiLogEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
         return AiLog.builder()
                 .id(entity.getId())
                 .tripId(entity.getTripId())
@@ -224,7 +254,8 @@ public class PersistenceMapper {
     // --- ExploreItem Mapping ---
 
     public ExploreItem toExploreItem(ExploreItemEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
         return ExploreItem.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
@@ -240,7 +271,8 @@ public class PersistenceMapper {
     }
 
     public ExploreItemEntity toExploreItemEntity(ExploreItem domain) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
         return ExploreItemEntity.builder()
                 .id(domain.getId())
                 .title(domain.getTitle())
@@ -252,6 +284,34 @@ public class PersistenceMapper {
                 .durationDays(domain.getDurationDays())
                 .thumbnailUrl(domain.getThumbnailUrl())
                 .popularityScore(domain.getPopularityScore())
+                .build();
+    }
+
+    // ActivityCandidate mapping
+    public ActivityCandidateEntity toEntity(ActivityCandidate domain, TripEntity tripEntity) {
+        if (domain == null)
+            return null;
+        return ActivityCandidateEntity.builder()
+                .id(domain.getId())
+                .trip(tripEntity)
+                .name(domain.getName())
+                .description(domain.getDescription())
+                .location(domain.getLocation())
+                .cost(domain.getCost())
+                .selected(domain.isSelected())
+                .build();
+    }
+
+    public ActivityCandidate toDomain(ActivityCandidateEntity entity) {
+        if (entity == null)
+            return null;
+        return ActivityCandidate.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .location(entity.getLocation())
+                .cost(entity.getCost())
+                .selected(entity.isSelected())
                 .build();
     }
 }

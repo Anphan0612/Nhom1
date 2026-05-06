@@ -22,6 +22,8 @@ public class TripController {
     private final UpdateTripUseCase updateTripUseCase;
     private final GenerateTripPlanUseCase generateTripPlanUseCase;
     private final RegenerateTripPlanUseCase regenerateTripPlanUseCase;
+    private final GetActivityCandidatesUseCase getActivityCandidatesUseCase;
+    private final FinalizeTripPlanUseCase finalizeTripPlanUseCase;
 
     @PostMapping
     public ResponseEntity<TripResponse> createTrip(@Valid @RequestBody TripRequest request) {
@@ -54,6 +56,17 @@ public class TripController {
     public ResponseEntity<GenerateResponse> regeneratePlan(@PathVariable UUID tripId,
                                                             @RequestBody(required = false) RegenerateRequest request) {
         return ResponseEntity.ok(regenerateTripPlanUseCase.execute(tripId, request));
+    }
+
+    @GetMapping("/{tripId}/candidates")
+    public ResponseEntity<List<ActivityCandidateResponse>> getCandidates(@PathVariable UUID tripId) {
+        return ResponseEntity.ok(getActivityCandidatesUseCase.execute(tripId));
+    }
+
+    @PostMapping("/{tripId}/finalize")
+    public ResponseEntity<TripResponse> finalizePlan(@PathVariable UUID tripId,
+                                                       @RequestBody FinalizeTripRequest request) {
+        return ResponseEntity.ok(finalizeTripPlanUseCase.execute(tripId, request));
     }
 }
 

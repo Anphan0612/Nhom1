@@ -15,7 +15,7 @@ public class AiProxyService {
 
     private final WebClient webClient;
     
-    @Value("${ai-service.url:http://localhost:8000/api/v1}")
+    @Value("${ai-service.url:http://localhost:8000/ai}")
     private String aiServiceUrl;
 
     public AiProxyService(WebClient.Builder webClientBuilder) {
