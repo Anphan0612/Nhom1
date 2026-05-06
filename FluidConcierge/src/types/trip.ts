@@ -118,3 +118,31 @@ export interface ActivityUpdateRequest {
   activityOrder?: number;
 }
 
+// --- Community Sharing Types ---
+
+export interface UserResponse {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+export interface SharedContentResponse {
+  id: string;
+  user: UserResponse;
+  type: 'ACTIVITY' | 'TRIP';
+  refId: string;
+  content: string; // JSON string
+  rating: number;
+  totalVotes: number;
+  status: string;
+  createdAt: string;
+  referenceData?: any; // ActivityResponse | TripResponse
+}
+
+export interface ShareContentRequest {
+  type: 'ACTIVITY' | 'TRIP';
+  refId: string;
+  content: string; // JSON string with description, tips
+  rating: number;
+}

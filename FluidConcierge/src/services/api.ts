@@ -10,6 +10,8 @@ import type {
   ActivityCandidateResponse,
   ActivityRequest,
   ActivityUpdateRequest,
+  ShareContentRequest,
+  SharedContentResponse,
 } from '../types/trip';
 
 // Base API client pointing at Spring Boot backend
@@ -133,5 +135,18 @@ export const exploreApi = {
 
   getRecommendations: (): Promise<ExploreItem[]> =>
     apiClient.get('/explore/recommendation').then(r => r.data),
+};
+
+// ── Community endpoints ────────────────────────────────────────────────────────
+
+export const communityApi = {
+  shareContent: (body: ShareContentRequest): Promise<SharedContentResponse> =>
+    apiClient.post('/community/share', body).then(r => r.data),
+
+  upvote: (id: string): Promise<SharedContentResponse> =>
+    apiClient.post(`/community/${id}/vote`).then(r => r.data),
+
+  getTrending: (type: 'ACTIVITY' | 'TRIP', limit: number = 6): Promise<SharedContentResponse[]> =>
+    apiClient.get('/community/trending', { params: { type, limit } }).then(r => r.data),
 };
 

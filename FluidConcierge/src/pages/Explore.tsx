@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { exploreApi } from '../services/api';
+import { exploreApi, communityApi } from '../services/api';
 import type { ExploreItem } from '../services/api';
+import type { SharedContentResponse } from '../types/trip';
 import ExploreCard from '../components/explore/ExploreCard';
 import FilterBar from '../components/explore/FilterBar';
+import CommunityTripCard from '../components/explore/CommunityTripCard';
+import CommunityActivityCard from '../components/explore/CommunityActivityCard';
 
 // Import hero images from src/assets
 import dalatImg from '../assets/dalat.jpg';
@@ -16,8 +19,8 @@ const ALL_TAGS = ['Chill', 'Nature', 'Thư giãn', 'Adventure', 'Phiêu lưu', '
 
 const Explore: React.FC = () => {
   const navigate = useNavigate();
-  const [recommended, setRecommended] = useState<ExploreItem[]>([]);
-  const [trending, setTrending] = useState<ExploreItem[]>([]);
+  const [trendingTrips, setTrendingTrips] = useState<SharedContentResponse[]>([]);
+  const [hotActivities, setHotActivities] = useState<SharedContentResponse[]>([]);
   const [allItems, setAllItems] = useState<ExploreItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -47,13 +50,13 @@ const Explore: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [recRes, trendRes, allRes] = await Promise.all([
-          exploreApi.getRecommendations(),
-          exploreApi.getTrending(),
+        const [tripsRes, actsRes, allRes] = await Promise.all([
+          communityApi.getTrending('TRIP', 6),
+          communityApi.getTrending('ACTIVITY', 6),
           exploreApi.getAll({ page: 0, size: 50 })
         ]);
-        setRecommended(recRes);
-        setTrending(trendRes);
+        setTrendingTrips(tripsRes);
+        setHotActivities(actsRes);
         setAllItems(allRes.content);
       } catch (error) {
         console.error('Failed to fetch explore data', error);
@@ -73,6 +76,17 @@ const Explore: React.FC = () => {
         budget: item.maxBudget
       }
     });
+  };
+
+  const handleUpvote = async (id: string) => {
+    try {
+      await communityApi.upvote(id);
+      // Optimistically update
+      setTrendingTrips(prev => prev.map(t => t.id === id ? { ...t, totalVotes: t.totalVotes + 1 } : t));
+      setHotActivities(prev => prev.map(a => a.id === id ? { ...a, totalVotes: a.totalVotes + 1 } : a));
+    } catch (error) {
+      console.error('Upvote failed', error);
+    }
   };
 
   const toggleTag = (tag: string) => {
@@ -185,31 +199,41 @@ const Explore: React.FC = () => {
         />
 
         <div className="mt-16 space-y-16">
-          {/* Recommended Section */}
-          {recommended.length > 0 && (
+          {/* Trending Trips Section */}
+          {trendingTrips.length > 0 && (
             <section>
-              <div className="flex items-center gap-3 mb-8">
-                <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                <h2 className="text-2xl font-bold text-text">Dành riêng cho bạn</h2>
+              <div className="flex justify-between items-end mb-8">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="material-symbols-outlined text-emerald-500" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+                    <h2 className="text-3xl font-black text-emerald-950 font-display">Trending Trips</h2>
+                  </div>
+                  <p className="text-emerald-700/70 font-medium">Những chuyến đi truyền cảm hứng nhất từ cộng đồng</p>
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {recommended.map(item => (
-                  <ExploreCard key={item.id} item={item} onPlan={() => handlePlan(item)} />
+                {trendingTrips.map(item => (
+                  <CommunityTripCard key={item.id} item={item} onUpvote={handleUpvote} />
                 ))}
               </div>
             </section>
           )}
 
-          {/* Trending Section */}
-          {trending.length > 0 && (
+          {/* Hot Activities Section */}
+          {hotActivities.length > 0 && (
             <section>
-              <div className="flex items-center gap-3 mb-8">
-                <span className="material-symbols-outlined text-primary">trending_up</span>
-                <h2 className="text-2xl font-bold text-text">Xu hướng hiện nay</h2>
+              <div className="flex justify-between items-end mb-8">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="material-symbols-outlined text-orange-500" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
+                    <h2 className="text-3xl font-black text-emerald-950 font-display">Hot Activities</h2>
+                  </div>
+                  <p className="text-emerald-700/70 font-medium">Kinh nghiệm bỏ túi & tips từ người dùng thực tế</p>
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {trending.map(item => (
-                  <ExploreCard key={item.id} item={item} onPlan={() => handlePlan(item)} />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {hotActivities.map(item => (
+                  <CommunityActivityCard key={item.id} item={item} onUpvote={handleUpvote} />
                 ))}
               </div>
             </section>

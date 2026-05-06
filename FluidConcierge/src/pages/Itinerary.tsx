@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { tripApi, itineraryApi, activityApi } from '../services/api';
 import type { TripResponse, ItineraryResponse, ActivityResponse } from '../types/trip';
 import EditActivityModal from '../components/EditActivityModal';
+import ShareModal from '../components/ShareModal';
 
 const CATEGORY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   default: { bg: 'bg-primary-fixed', text: 'text-on-primary-fixed', label: 'Hoạt động' },
@@ -27,10 +28,11 @@ function formatDate(dateStr: string): string {
 
 // ── Sub-components ─────────────────────────────────────────────────────────
 
-function ActivityCard({ activity, onEdit, onDelete }: {
+function ActivityCard({ activity, onEdit, onDelete, onShare }: {
   activity: ActivityResponse;
   onEdit: (activity: ActivityResponse) => void;
   onDelete: (activityId: string) => void;
+  onShare: (activity: ActivityResponse) => void;
 }) {
   const style = CATEGORY_STYLES.default;
   return (
@@ -68,6 +70,13 @@ function ActivityCard({ activity, onEdit, onDelete }: {
       {/* Action buttons below card (show on hover) */}
       <div className="flex justify-end gap-2 mt-2">
         <button
+          onClick={() => onShare(activity)}
+          className="p-2 bg-emerald-500 text-white rounded-lg hover:scale-105 cursor-pointer transition-all shadow-md"
+          title="Chia sẻ"
+        >
+          <span className="material-symbols-outlined text-sm">share</span>
+        </button>
+        <button
           onClick={() => onEdit(activity)}
           className="p-2 bg-primary text-white rounded-lg hover:scale-105 cursor-pointer transition-all shadow-md"
           title="Chỉnh sửa"
@@ -86,13 +95,14 @@ function ActivityCard({ activity, onEdit, onDelete }: {
   );
 }
 
-function DaySection({ itinerary, isFirst, onAddActivity, onRegenerateDay, onEditActivity, onDeleteActivity }: {
+function DaySection({ itinerary, isFirst, onAddActivity, onRegenerateDay, onEditActivity, onDeleteActivity, onShareActivity }: {
   itinerary: ItineraryResponse;
   isFirst: boolean;
   onAddActivity: (itineraryId: string) => void;
   onRegenerateDay: (itineraryId: string) => void;
   onEditActivity: (activity: ActivityResponse) => void;
   onDeleteActivity: (activityId: string, itineraryId: string) => void;
+  onShareActivity: (activity: ActivityResponse) => void;
 }) {
   const [expanded, setExpanded] = useState(isFirst);
   const dayTotal = itinerary.activities.reduce((s, a) => s + (a.cost || 0), 0);
@@ -140,6 +150,7 @@ function DaySection({ itinerary, isFirst, onAddActivity, onRegenerateDay, onEdit
                     activity={activity}
                     onEdit={onEditActivity}
                     onDelete={(activityId) => onDeleteActivity(activityId, itinerary.id)}
+                    onShare={onShareActivity}
                   />
                 ))
             )}
@@ -232,6 +243,15 @@ export default function Itinerary() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentItineraryId, setCurrentItineraryId] = useState<string | null>(null);
 
+  // Share modal state
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareData, setShareData] = useState<{
+    type: 'ACTIVITY' | 'TRIP';
+    refId: string;
+    title: string;
+    subtitle?: string;
+  } | null>(null);
+
   useEffect(() => {
     if (!tripId) return;
     let interval: ReturnType<typeof setInterval>;
@@ -308,6 +328,27 @@ export default function Itinerary() {
   const handleEditActivity = (activity: ActivityResponse) => {
     setEditingActivity(activity);
     setIsEditModalOpen(true);
+  };
+
+  const handleShareActivity = (activity: ActivityResponse) => {
+    setShareData({
+      type: 'ACTIVITY',
+      refId: activity.id,
+      title: activity.name,
+      subtitle: activity.location
+    });
+    setShareModalOpen(true);
+  };
+
+  const handleShareTrip = () => {
+    if (!trip) return;
+    setShareData({
+      type: 'TRIP',
+      refId: trip.id,
+      title: trip.title || trip.destination,
+      subtitle: `${new Date(trip.startDate).toLocaleDateString('vi-VN')} - ${new Date(trip.endDate).toLocaleDateString('vi-VN')}`
+    });
+    setShareModalOpen(true);
   };
 
   const handleAddActivity = (itineraryId: string) => {
@@ -412,7 +453,10 @@ export default function Itinerary() {
           </div>
 
           <div className="flex gap-4 z-10">
-            <button className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 backdrop-blur-md transition-all group">
+            <button
+              onClick={handleShareTrip}
+              className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 backdrop-blur-md transition-all group"
+            >
               <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">share</span>
               Chia sẻ
             </button>
@@ -451,6 +495,7 @@ export default function Itinerary() {
                 onRegenerateDay={handleRegenerateDay}
                 onEditActivity={handleEditActivity}
                 onDeleteActivity={handleDeleteActivity}
+                onShareActivity={handleShareActivity}
               />
             ))
           )}
@@ -506,6 +551,22 @@ export default function Itinerary() {
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveActivity}
       />
+
+      {/* Share Modal */}
+      {shareData && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          type={shareData.type}
+          refId={shareData.refId}
+          title={shareData.title}
+          subtitle={shareData.subtitle}
+          onSuccess={() => {
+            // Optional: Show a toast notification here
+            alert('Đã chia sẻ thành công!');
+          }}
+        />
+      )}
     </div>
   );
 }
