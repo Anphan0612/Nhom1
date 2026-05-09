@@ -5,7 +5,7 @@ import ImageCarousel from './ImageCarousel';
 
 export interface BaseContentCardProps {
   item: SharedContentResponse;
-  onUpvote?: (id: string) => void;
+  onUpvote?: (id: string, isLike: boolean) => void;
   onClick?: (item: SharedContentResponse) => void;
   onImageOpen?: (images: string[], index: number) => void;
   children?: React.ReactNode;
@@ -23,6 +23,16 @@ const BaseContentCard: React.FC<BaseContentCardProps> = ({
   imageClassName = "h-40 w-full"
 }) => {
   const images = item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : [];
+  const [isLiked, setIsLiked] = React.useState(item.hasUpvoted || false);
+  const [localVotes, setLocalVotes] = React.useState(item.totalVotes);
+
+  const handleUpvoteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLocalVotes(prev => newLiked ? prev + 1 : prev - 1);
+    onUpvote?.(item.id, newLiked);
+  };
 
   return (
     <motion.div
@@ -59,14 +69,17 @@ const BaseContentCard: React.FC<BaseContentCardProps> = ({
           </div>
 
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onUpvote?.(item.id);
-            }}
-            className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg hover:bg-emerald-100 transition-colors"
+            onClick={handleUpvoteClick}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-colors cursor-pointer ${
+              isLiked 
+                ? 'text-white bg-emerald-500 hover:bg-emerald-600' 
+                : 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'
+            }`}
           >
-            <span className="material-symbols-outlined text-[16px]">stars</span>
-            <span className="text-xs font-bold">{item.totalVotes}</span>
+            <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: isLiked ? "'FILL' 1" : "'FILL' 0" }}>
+              thumb_up
+            </span>
+            <span className="text-xs font-bold">{localVotes} lượt thích</span>
           </button>
         </div>
       </div>

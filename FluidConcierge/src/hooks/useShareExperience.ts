@@ -22,7 +22,7 @@ export const useShareExperience = ({ type, refId, onSuccess, onClose }: UseShare
     if (files.length > 0) {
       const newImages = [...images, ...files];
       setImages(newImages);
-      
+
       files.forEach(file => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -56,13 +56,13 @@ export const useShareExperience = ({ type, refId, onSuccess, onClose }: UseShare
       formData.append('rating', rating.toString());
       formData.append('description', description);
       formData.append('content', JSON.stringify(contentObj));
-      
+
       if (images.length > 0) {
         images.forEach(file => {
           formData.append('images', file);
         });
       }
-        
+
       await communityApi.shareContentFormData(formData);
 
       onSuccess();

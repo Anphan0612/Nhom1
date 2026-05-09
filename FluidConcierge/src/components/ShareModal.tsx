@@ -76,26 +76,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
               </div>
 
               <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1">
-                <div>
-                  <label className="block text-sm font-bold text-emerald-900 mb-3">Đánh giá của bạn</label>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        className="transition-transform hover:scale-110 active:scale-95 focus:outline-none"
-                      >
-                        <span 
-                          className={`material-symbols-outlined text-4xl ${star <= rating ? 'text-yellow-400' : 'text-slate-200'}`}
-                          style={{ fontVariationSettings: star <= rating ? "'FILL' 1" : "'FILL' 0" }}
-                        >
-                          star
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+
 
                 {type === 'EXPLORE_ITEM' && (
                   <div>

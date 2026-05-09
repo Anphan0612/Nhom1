@@ -26,11 +26,29 @@ public class RateContentUseCase {
         SharedContent content = sharedContentRepository.findById(contentId)
                 .orElseThrow(() -> new RuntimeException("Shared content not found"));
 
-        if (request.getStars() < 1 || request.getStars() > 5) {
-            throw new RuntimeException("Stars must be between 1 and 5");
+        if (request.getStars() < 0 || request.getStars() > 5) {
+            throw new RuntimeException("Stars must be between 0 and 5");
         }
 
         Optional<UserVote> existingVoteOpt = userVoteRepository.findByUserIdAndSharedContentId(userId, contentId);
+
+        if (request.getStars() == 0) {
+            if (existingVoteOpt.isPresent()) {
+                UserVote existingVote = existingVoteOpt.get();
+                content.setTotalRatingSum(content.getTotalRatingSum() - existingVote.getStars());
+                content.setTotalVotes(content.getTotalVotes() - 1);
+                userVoteRepository.delete(existingVote);
+                
+                if (content.getTotalVotes() > 0) {
+                    content.setRating(content.getTotalRatingSum() / content.getTotalVotes());
+                } else {
+                    content.setRating(0.0);
+                }
+                SharedContent saved = sharedContentRepository.save(content);
+                return SharedContentMapper.toResponse(saved);
+            }
+            return SharedContentMapper.toResponse(content);
+        }
 
         if (existingVoteOpt.isPresent()) {
             UserVote existingVote = existingVoteOpt.get();

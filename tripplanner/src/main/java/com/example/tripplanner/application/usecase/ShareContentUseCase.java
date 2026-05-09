@@ -40,9 +40,9 @@ public class ShareContentUseCase {
         List<String> imageUrls = java.util.Collections.emptyList();
         if (images != null && !images.isEmpty()) {
             imageUrls = images.stream()
-                .map(fileStorageService::storeFile)
-                .filter(url -> url != null && !url.isEmpty())
-                .collect(Collectors.toList());
+                    .map(fileStorageService::storeFile)
+                    .filter(url -> url != null && !url.isEmpty())
+                    .collect(Collectors.toList());
         }
 
         double newRating = request.getRating() != null ? request.getRating() : 0.0;

@@ -4,7 +4,7 @@ import BaseContentCard from './BaseContentCard';
 
 interface CommunityActivityCardProps {
   item: SharedContentResponse;
-  onUpvote?: (id: string) => void;
+  onUpvote?: (id: string, isLike: boolean) => void;
   onClick?: (item: SharedContentResponse) => void;
   onImageOpen?: (images: string[], index: number) => void;
 }
@@ -33,10 +33,6 @@ const CommunityActivityCard: React.FC<CommunityActivityCardProps> = ({ item, onU
             {parsedContent.specificLocation || activity?.name || 'Địa điểm thú vị'}
           </h4>
           <span className="text-xs text-emerald-600 font-medium ml-6">{activity?.location}</span>
-        </div>
-        <div className="flex items-center gap-1 text-yellow-500 bg-yellow-50 px-2 py-1 rounded-lg">
-          <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-          <span className="text-sm font-bold">{item.rating.toFixed(1)}</span>
         </div>
       </div>
 

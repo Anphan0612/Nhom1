@@ -27,4 +27,10 @@ public class UserVoteRepositoryImpl implements UserVoteRepository {
         return jpaUserVoteRepository.findByUserIdAndSharedContentId(userId, sharedContentId)
                 .map(mapper::toDomain);
     }
+
+    @Override
+    public void delete(UserVote userVote) {
+        UserVoteEntity entity = mapper.toEntity(userVote);
+        jpaUserVoteRepository.delete(entity);
+    }
 }

@@ -5,7 +5,7 @@ import BaseContentCard from './BaseContentCard';
 
 interface CommunityTripCardProps {
   item: SharedContentResponse;
-  onUpvote: (id: string) => void;
+  onUpvote: (id: string, isLike: boolean) => void;
   onClick?: (item: SharedContentResponse) => void;
   onImageOpen?: (images: string[], index: number) => void;
 }
@@ -38,12 +38,7 @@ const CommunityTripCard: React.FC<CommunityTripCardProps> = ({ item, onUpvote, o
       className="bg-white/80 rounded-[2rem] border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(16,185,129,0.1)]"
       imageClassName="h-48 sm:h-56 w-full"
     >
-      <div className="absolute top-4 right-4 z-20 flex gap-2 pointer-events-none">
-        <div className="px-3 py-1.5 bg-black/30 backdrop-blur-md rounded-full text-white text-sm font-medium flex items-center gap-1 border border-white/20">
-          <span className="material-symbols-outlined text-[16px] text-yellow-400" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-          {item.rating.toFixed(1)}
-        </div>
-      </div>
+
 
       <div className="flex justify-between items-start mb-3">
         <div>

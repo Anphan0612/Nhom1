@@ -19,6 +19,7 @@ public class SharedContentResponse {
     private Double rating;
     private Double totalRatingSum;
     private Integer totalVotes;
+    private boolean hasUpvoted;
 
     private java.util.List<String> imageUrls;
     private String description;
