@@ -130,12 +130,13 @@ export interface UserResponse {
 export interface SharedContentResponse {
   id: string;
   user: UserResponse;
-  type: 'ACTIVITY' | 'TRIP' | 'EXPLORE_ITEM';
+  type: 'ACTIVITY' | 'TRIP' | 'EXPLORE_ITEM' | 'STANDALONE_ACTIVITY';
   refId: string;
   content: string; // JSON string
   rating: number;
   totalRatingSum: number;
   totalVotes: number;
+  hasUpvoted?: boolean;
   imageUrls?: string[];
   description?: string;
   cost?: number;
@@ -146,8 +147,8 @@ export interface SharedContentResponse {
 }
 
 export interface ShareContentRequest {
-  type: 'ACTIVITY' | 'TRIP' | 'EXPLORE_ITEM';
-  refId: string;
+  type: 'ACTIVITY' | 'TRIP' | 'EXPLORE_ITEM' | 'STANDALONE_ACTIVITY';
+  refId?: string;
   content: string; // JSON string with extra data
   rating: number;
   description?: string;
