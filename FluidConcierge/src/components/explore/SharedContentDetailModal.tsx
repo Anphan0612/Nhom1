@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { communityApi } from '../../services/api';
 import type { SharedContentResponse, CommentResponse } from '../../types/trip';
+import ImageCarousel from './ImageCarousel';
+import ImageLightbox from './ImageLightbox';
 
 interface SharedContentDetailModalProps {
   isOpen: boolean;
@@ -17,6 +19,9 @@ const SharedContentDetailModal: React.FC<SharedContentDetailModalProps> = ({
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxStartIndex, setLightboxStartIndex] = useState(0);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (isOpen && item) {
@@ -50,6 +55,8 @@ const SharedContentDetailModal: React.FC<SharedContentDetailModalProps> = ({
   };
 
   if (!item) return null;
+
+  const images = item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : [];
 
   return (
     <AnimatePresence>
@@ -87,17 +94,19 @@ const SharedContentDetailModal: React.FC<SharedContentDetailModalProps> = ({
 
               {/* Content body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {item.imageUrl && (
-                  <img 
-                    src={`http://localhost:8081${item.imageUrl}`} 
-                    alt="Content" 
-                    className="w-full max-h-64 object-cover rounded-xl shadow-sm"
-                  />
-                )}
+                <ImageCarousel 
+                  images={images} 
+                  className="w-full h-80 rounded-2xl shadow-inner border border-emerald-50"
+                  onImageClick={(index) => {
+                    setLightboxImages(images);
+                    setLightboxStartIndex(index);
+                    setIsLightboxOpen(true);
+                  }}
+                />
                 <div className="bg-slate-50 p-4 rounded-xl text-slate-700">
                   <p>"{item.description || JSON.parse(item.content).description}"</p>
                 </div>
-                
+
                 {/* Stats */}
                 <div className="flex gap-4 border-y border-emerald-100 py-3">
                   <div className="flex items-center gap-1 text-yellow-500 font-bold">
@@ -135,16 +144,16 @@ const SharedContentDetailModal: React.FC<SharedContentDetailModalProps> = ({
               {/* Add comment form */}
               <div className="p-4 bg-emerald-50/30 border-t border-emerald-100">
                 <form onSubmit={handleAddComment} className="flex gap-2">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     required
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Viết bình luận..."
                     className="flex-1 px-4 py-2 rounded-xl border border-emerald-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm"
                   />
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={loading || !newComment.trim()}
                     className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors disabled:opacity-50"
                   >
@@ -154,6 +163,14 @@ const SharedContentDetailModal: React.FC<SharedContentDetailModalProps> = ({
               </div>
             </div>
           </motion.div>
+
+          {/* Lightbox rendered at root level to avoid transform/overflow clipping */}
+          <ImageLightbox 
+            images={lightboxImages.length > 0 ? lightboxImages : images}
+            startIndex={lightboxStartIndex}
+            isOpen={isLightboxOpen}
+            onClose={() => setIsLightboxOpen(false)}
+          />
         </>
       )}
     </AnimatePresence>

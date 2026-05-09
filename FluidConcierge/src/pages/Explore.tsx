@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { exploreApi, communityApi } from '../services/api';
-import type { ExploreItem } from '../services/api';
-import type { SharedContentResponse } from '../types/trip';
+import type { SharedContentResponse, ExploreItem } from '../types/trip';
 import ExploreCard from '../components/explore/ExploreCard';
 import FilterBar from '../components/explore/FilterBar';
 import CommunityTripCard from '../components/explore/CommunityTripCard';
@@ -11,6 +10,7 @@ import CommunityActivityCard from '../components/explore/CommunityActivityCard';
 import ShareModal from '../components/ShareModal';
 import SharedContentDetailModal from '../components/explore/SharedContentDetailModal';
 import ExploreDetailModal from '../components/explore/ExploreDetailModal';
+import ImageLightbox from '../components/explore/ImageLightbox';
 
 // Import hero images from src/assets
 import dalatImg from '../assets/dalat.jpg';
@@ -35,6 +35,10 @@ const Explore: React.FC = () => {
   
   const [selectedDetailItem, setSelectedDetailItem] = useState<SharedContentResponse | null>(null);
   const [selectedExploreItem, setSelectedExploreItem] = useState<ExploreItem | null>(null);
+
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxStartIndex, setLightboxStartIndex] = useState(0);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
 
   const HERO_BGS = [
     '/assets/explore/hanoi_culture.png',
@@ -242,8 +246,17 @@ const Explore: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {trendingTrips.map(item => (
-                  <div key={item.id} onClick={() => setSelectedDetailItem(item)}>
-                    <CommunityTripCard item={item} onUpvote={(id) => handleRate(id, 5)} />
+                  <div key={item.id}>
+                    <CommunityTripCard 
+                      item={item} 
+                      onUpvote={(id) => handleRate(id, 5)} 
+                      onClick={() => setSelectedDetailItem(item)}
+                      onImageOpen={(images, index) => {
+                        setLightboxImages(images);
+                        setLightboxStartIndex(index);
+                        setIsLightboxOpen(true);
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -264,8 +277,17 @@ const Explore: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {hotActivities.map(item => (
-                  <div key={item.id} onClick={() => setSelectedDetailItem(item)} className="cursor-pointer">
-                    <CommunityActivityCard item={item} onUpvote={(id) => handleRate(id, 5)} />
+                  <div key={item.id}>
+                    <CommunityActivityCard 
+                      item={item} 
+                      onUpvote={(id) => handleRate(id, 5)} 
+                      onClick={() => setSelectedDetailItem(item)}
+                      onImageOpen={(images, index) => {
+                        setLightboxImages(images);
+                        setLightboxStartIndex(index);
+                        setIsLightboxOpen(true);
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -311,6 +333,13 @@ const Explore: React.FC = () => {
         onClose={() => setSelectedExploreItem(null)}
         exploreItem={selectedExploreItem}
         onPlan={handlePlan}
+      />
+
+      <ImageLightbox 
+        images={lightboxImages}
+        startIndex={lightboxStartIndex}
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
       />
     </div>
   );

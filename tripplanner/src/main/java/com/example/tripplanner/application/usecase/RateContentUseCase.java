@@ -2,7 +2,7 @@ package com.example.tripplanner.application.usecase;
 
 import com.example.tripplanner.application.dto.RateRequest;
 import com.example.tripplanner.application.dto.SharedContentResponse;
-import com.example.tripplanner.application.mapper.TripMapper;
+import com.example.tripplanner.application.mapper.SharedContentMapper;
 import com.example.tripplanner.domain.model.SharedContent;
 import com.example.tripplanner.domain.model.UserVote;
 import com.example.tripplanner.domain.port.SharedContentRepository;
@@ -59,21 +59,6 @@ public class RateContentUseCase {
 
         SharedContent saved = sharedContentRepository.save(content);
 
-        return SharedContentResponse.builder()
-                .id(saved.getId())
-                .user(TripMapper.toUserResponse(saved.getUser()))
-                .type(saved.getType())
-                .refId(saved.getRefId())
-                .content(saved.getContent())
-                .rating(saved.getRating())
-                .totalRatingSum(saved.getTotalRatingSum())
-                .totalVotes(saved.getTotalVotes())
-                .description(saved.getDescription())
-                .cost(saved.getCost())
-                .duration(saved.getDuration())
-                .imageUrl(saved.getImageUrl())
-                .status(saved.getStatus())
-                .createdAt(saved.getCreatedAt())
-                .build();
+        return SharedContentMapper.toResponse(saved);
     }
 }
