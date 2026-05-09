@@ -136,7 +136,7 @@ export interface SharedContentResponse {
   rating: number;
   totalRatingSum: number;
   totalVotes: number;
-  imageUrl?: string;
+  imageUrls?: string[];
   description?: string;
   cost?: number;
   duration?: number;
