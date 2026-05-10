@@ -14,8 +14,6 @@
 
 # Log file
 *.log
-uploads/
-**/uploads/
 
 # BlueJ files
 *.ctxt
