@@ -140,7 +140,7 @@ export const communityApi = {
     // Keep this for backward compatibility if needed, but use the new logic internally
     const formData = new FormData();
     formData.append('type', request.type);
-    formData.append('refId', request.refId);
+    if (request.refId) formData.append('refId', request.refId);
     formData.append('content', request.content);
     if (request.rating) formData.append('rating', request.rating.toString());
     if (request.description) formData.append('description', request.description);
