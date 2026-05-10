@@ -32,6 +32,12 @@ public class UserVoteRepositoryImpl implements UserVoteRepository {
     }
 
     @Override
+    public Optional<UserVote> findByUserIdAndExploreItemId(UUID userId, UUID exploreItemId) {
+        return jpaUserVoteRepository.findByUserIdAndExploreItemId(userId, exploreItemId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public void delete(UserVote userVote) {
         UserVoteEntity entity = mapper.toEntity(userVote);
         jpaUserVoteRepository.delete(entity);
@@ -40,6 +46,11 @@ public class UserVoteRepositoryImpl implements UserVoteRepository {
     @Override
     public int countBySharedContentId(UUID sharedContentId) {
         return jpaUserVoteRepository.countBySharedContentId(sharedContentId);
+    }
+
+    @Override
+    public int countByExploreItemId(UUID exploreItemId) {
+        return jpaUserVoteRepository.countByExploreItemId(exploreItemId);
     }
 
     @Override

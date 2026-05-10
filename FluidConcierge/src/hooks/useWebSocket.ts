@@ -21,7 +21,7 @@ export const useWebSocket = () => {
 
     const client = new Client({
       // Provide SockJS factory for fallback and proper connection
-      webSocketFactory: () => new SockJS('http://localhost:8081/ws'), 
+      webSocketFactory: () => new SockJS('http://localhost:8090/ws'), 
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },

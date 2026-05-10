@@ -186,4 +186,6 @@ export interface ExploreItem {
   description?: string;
   averageRating: number;
   reviewCount: number;
+  totalVotes: number;
+  hasUpvoted?: boolean;
 }

@@ -11,9 +11,10 @@ interface Props {
   onClose: () => void;
   exploreItem: ExploreItem | null;
   onPlan: (item: ExploreItem) => void;
+  onUpvote?: (id: string, isLike: boolean) => void;
 }
 
-const ExploreDetailModal: React.FC<Props> = ({ isOpen, onClose, exploreItem, onPlan }) => {
+const ExploreDetailModal: React.FC<Props> = ({ isOpen, onClose, exploreItem, onPlan, onUpvote }) => {
   const [reviews, setReviews] = useState<SharedContentResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -87,6 +88,23 @@ const ExploreDetailModal: React.FC<Props> = ({ isOpen, onClose, exploreItem, onP
                     <span className="font-bold text-yellow-700">{exploreItem.averageRating?.toFixed(1) || '0.0'}</span>
                     <span className="text-xs text-yellow-600/60 ml-1">({exploreItem.reviewCount || 0})</span>
                   </div>
+                  {/* Like Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUpvote?.(exploreItem.id, !exploreItem.hasUpvoted);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
+                      exploreItem.hasUpvoted 
+                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                        : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: exploreItem.hasUpvoted ? "'FILL' 1" : "'FILL' 0" }}>
+                      favorite
+                    </span>
+                    <span className="font-bold text-sm">{exploreItem.totalVotes || 0}</span>
+                  </button>
                 </div>
               </div>
 

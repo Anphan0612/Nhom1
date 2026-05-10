@@ -8,9 +8,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user_votes", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "shared_content_id"})
-})
+@Table(name = "user_votes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,8 +18,11 @@ public class UserVoteEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "shared_content_id", nullable = false)
+    @Column(name = "shared_content_id")
     private UUID sharedContentId;
+
+    @Column(name = "explore_item_id")
+    private UUID exploreItemId;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;

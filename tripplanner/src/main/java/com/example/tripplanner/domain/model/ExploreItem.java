@@ -25,5 +25,8 @@ public class ExploreItem {
     private Double averageRating = 0.0;
     @Builder.Default
     private Integer reviewCount = 0;
+    @Builder.Default
+    private Integer totalVotes = 0;
+    private Boolean hasUpvoted;
     private Long version;
 }

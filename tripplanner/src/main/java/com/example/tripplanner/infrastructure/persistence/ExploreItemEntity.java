@@ -51,6 +51,10 @@ public class ExploreItemEntity {
     @Builder.Default
     private Integer reviewCount = 0;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer totalVotes = 0;
+
     @Version
     private Long version;
 }

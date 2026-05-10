@@ -9,5 +9,7 @@ import java.util.UUID;
 @Repository
 public interface JpaUserVoteRepository extends JpaRepository<UserVoteEntity, UUID> {
     Optional<UserVoteEntity> findByUserIdAndSharedContentId(UUID userId, UUID sharedContentId);
+    Optional<UserVoteEntity> findByUserIdAndExploreItemId(UUID userId, UUID exploreItemId);
     int countBySharedContentId(UUID sharedContentId);
+    int countByExploreItemId(UUID exploreItemId);
 }

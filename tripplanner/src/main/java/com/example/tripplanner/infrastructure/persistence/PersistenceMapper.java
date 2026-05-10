@@ -270,6 +270,7 @@ public class PersistenceMapper {
                 .description(entity.getDescription())
                 .averageRating(entity.getAverageRating())
                 .reviewCount(entity.getReviewCount())
+                .totalVotes(entity.getTotalVotes())
                 .version(entity.getVersion())
                 .build();
     }
@@ -291,6 +292,7 @@ public class PersistenceMapper {
                 .description(domain.getDescription())
                 .averageRating(domain.getAverageRating())
                 .reviewCount(domain.getReviewCount())
+                .totalVotes(domain.getTotalVotes())
                 .version(domain.getVersion())
                 .build();
     }
@@ -393,6 +395,7 @@ public class PersistenceMapper {
         return UserVoteEntity.builder()
                 .id(domain.getId())
                 .sharedContentId(domain.getSharedContentId())
+                .exploreItemId(domain.getExploreItemId())
                 .userId(domain.getUserId())
                 .stars(domain.getStars())
                 .createdAt(domain.getCreatedAt())
@@ -404,6 +407,7 @@ public class PersistenceMapper {
         return UserVote.builder()
                 .id(entity.getId())
                 .sharedContentId(entity.getSharedContentId())
+                .exploreItemId(entity.getExploreItemId())
                 .userId(entity.getUserId())
                 .stars(entity.getStars())
                 .createdAt(entity.getCreatedAt())

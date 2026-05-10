@@ -125,9 +125,23 @@ const Explore: React.FC = () => {
 
       setTrendingTrips(prev => updateList(prev));
       setHotActivities(prev => updateList(prev));
+      setAllItems(prev => prev.map(item => {
+        if (item.id === id) {
+          const newCount = isLike ? (item.totalVotes || 0) + 1 : Math.max(0, (item.totalVotes || 0) - 1);
+          return { ...item, hasUpvoted: isLike, totalVotes: newCount };
+        }
+        return item;
+      }));
       setSelectedDetailItem(prev => {
         if (prev?.id === id) {
           const newCount = isLike ? prev.totalVotes + 1 : Math.max(0, prev.totalVotes - 1);
+          return { ...prev, hasUpvoted: isLike, totalVotes: newCount };
+        }
+        return prev;
+      });
+      setSelectedExploreItem(prev => {
+        if (prev?.id === id) {
+          const newCount = isLike ? (prev.totalVotes || 0) + 1 : Math.max(0, (prev.totalVotes || 0) - 1);
           return { ...prev, hasUpvoted: isLike, totalVotes: newCount };
         }
         return prev;
@@ -339,7 +353,12 @@ const Explore: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <AnimatePresence mode='popLayout'>
                 {filteredItems.map(item => (
-                  <ExploreCard key={item.id} item={item} onClick={handleExploreCardClick} />
+                  <ExploreCard 
+                    key={item.id} 
+                    item={item} 
+                    onClick={handleExploreCardClick} 
+                    onUpvote={(id, isLike) => handleRate(id, isLike)}
+                  />
                 ))}
               </AnimatePresence>
             </div>
@@ -427,6 +446,7 @@ const Explore: React.FC = () => {
         onClose={() => setSelectedExploreItem(null)}
         exploreItem={selectedExploreItem}
         onPlan={handlePlan}
+        onUpvote={(id, isLike) => handleRate(id, isLike)}
       />
 
       <ImageLightbox

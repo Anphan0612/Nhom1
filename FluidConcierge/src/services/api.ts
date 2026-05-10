@@ -20,7 +20,7 @@ import type {
 
 // Base API client pointing at Spring Boot backend
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8081/api/v1',
+  baseURL: 'http://localhost:8090/api/v1',
 });
 
 // Add interceptor to include JWT token in requests

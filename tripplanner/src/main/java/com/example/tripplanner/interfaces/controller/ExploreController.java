@@ -32,13 +32,18 @@ public class ExploreController {
             @RequestParam(required = false) BigDecimal maxBudget,
             @RequestParam(required = false) Integer durationDays,
             @RequestParam(required = false) List<String> tags,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             Pageable pageable) {
-        return ResponseEntity.ok(getExploreItemsUseCase.execute(destination, minBudget, maxBudget, durationDays, tags, pageable));
+        java.util.UUID userId = (userPrincipal != null) ? userPrincipal.getId() : null;
+        return ResponseEntity.ok(getExploreItemsUseCase.execute(destination, minBudget, maxBudget, durationDays, tags, pageable, userId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExploreItem> getExploreItemById(@PathVariable java.util.UUID id) {
-        return ResponseEntity.ok(getExploreItemByIdUseCase.execute(id));
+    public ResponseEntity<ExploreItem> getExploreItemById(
+            @PathVariable java.util.UUID id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        java.util.UUID userId = (userPrincipal != null) ? userPrincipal.getId() : null;
+        return ResponseEntity.ok(getExploreItemByIdUseCase.execute(id, userId));
     }
 
     @GetMapping("/trending")

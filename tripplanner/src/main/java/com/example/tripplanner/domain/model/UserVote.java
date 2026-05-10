@@ -15,6 +15,7 @@ import java.util.UUID;
 public class UserVote {
     private UUID id;
     private UUID sharedContentId;
+    private UUID exploreItemId;
     private UUID userId;
     private Integer stars; // 1 to 5
     private LocalDateTime createdAt;

@@ -3,12 +3,45 @@ import { motion } from 'framer-motion';
 import type { ExploreItem } from '../../types/trip';
 import TagBadge from './TagBadge';
 
+import { useWebSocket } from '../../hooks/useWebSocket';
+
 interface ExploreCardProps {
   item: ExploreItem;
   onClick: (item: ExploreItem) => void;
+  onUpvote?: (id: string, isLike: boolean) => void;
 }
 
-const ExploreCard: React.FC<ExploreCardProps> = ({ item, onClick }) => {
+const ExploreCard: React.FC<ExploreCardProps> = ({ item, onClick, onUpvote }) => {
+  const [isLiked, setIsLiked] = React.useState(item.hasUpvoted || false);
+  const [localVotes, setLocalVotes] = React.useState(item.totalVotes || 0);
+  const { isConnected, subscribe } = useWebSocket();
+
+  // Sync with props
+  React.useEffect(() => {
+    setIsLiked(item.hasUpvoted || false);
+    setLocalVotes(item.totalVotes || 0);
+  }, [item.hasUpvoted, item.totalVotes]);
+
+  // WebSocket sync for real-time likes
+  React.useEffect(() => {
+    if (isConnected) {
+      const topic = `/topic/experiences/${item.id}`;
+      const subscription = subscribe(topic, (message: { newLikeCount: number }) => {
+        console.log(`[ExploreCard WS] Received update for ${item.id}:`, message.newLikeCount);
+        setLocalVotes(message.newLikeCount);
+      });
+      return () => subscription?.unsubscribe();
+    }
+  }, [isConnected, item.id, subscribe]);
+
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLocalVotes(prev => newLiked ? prev + 1 : prev - 1);
+    onUpvote?.(item.id, newLiked);
+  };
+
   return (
     <motion.div
       whileHover={{ y: -8 }}
@@ -29,12 +62,19 @@ const ExploreCard: React.FC<ExploreCardProps> = ({ item, onClick }) => {
           <TagBadge label={item.type} variant="glass" />
         </div>
         
-        {/* Popularity score if high */}
-        {item.popularityScore >= 9.5 && (
-          <div className="absolute top-4 right-4 bg-cta text-white rounded-full p-1.5 shadow-lg">
-            <span className="material-symbols-outlined text-sm">local_fire_department</span>
-          </div>
-        )}
+        {/* Like Button overlay */}
+        <button
+          onClick={handleLikeClick}
+          className={`absolute top-4 right-4 p-2 rounded-full backdrop-blur-md transition-all shadow-lg z-30 ${
+            isLiked 
+              ? 'bg-emerald-500 text-white scale-110' 
+              : 'bg-black/20 text-white hover:bg-black/40'
+          }`}
+        >
+          <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: isLiked ? "'FILL' 1" : "'FILL' 0" }}>
+            favorite
+          </span>
+        </button>
 
         <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-black/40 backdrop-blur px-2 py-1 rounded-lg">
           <span className="material-symbols-outlined text-yellow-400 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
@@ -57,9 +97,9 @@ const ExploreCard: React.FC<ExploreCardProps> = ({ item, onClick }) => {
 
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/10">
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-text-muted/60 uppercase tracking-widest">Ngân sách</span>
-            <span className="text-sm font-bold text-text">
-              {item.minBudget.toLocaleString()} - {item.maxBudget.toLocaleString()} <span className="text-[10px]">VND</span>
+            <span className="text-[10px] font-bold text-text-muted/60 uppercase tracking-widest">Lượt thích</span>
+            <span className="text-sm font-bold text-emerald-600">
+              {localVotes} <span className="text-[10px]">THÍCH</span>
             </span>
           </div>
           <div className="flex flex-col items-end">

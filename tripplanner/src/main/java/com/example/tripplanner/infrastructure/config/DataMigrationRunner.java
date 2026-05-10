@@ -42,9 +42,24 @@ public class DataMigrationRunner implements CommandLineRunner {
             );
             log.info("Ensured shared_content_images table exists.");
         } catch (Exception e) {
-            log.warn("Could not create shared_content_images table (may already exist or Hibernate will handle it): {}", e.getMessage());
+            log.warn("Could not create shared_content_images table: {}", e.getMessage());
         }
 
-        
+        // 4. Make shared_content_id nullable in user_votes
+        try {
+            jdbcTemplate.execute("ALTER TABLE user_votes MODIFY COLUMN shared_content_id CHAR(36) NULL");
+            log.info("Successfully made user_votes.shared_content_id nullable.");
+        } catch (Exception e) {
+            log.warn("Could not modify user_votes.shared_content_id: {}", e.getMessage());
+        }
+
+        // 5. Ensure explore_item_id column exists in user_votes
+        try {
+            // Use a safer way to add column if not exists for MySQL
+            jdbcTemplate.execute("ALTER TABLE user_votes ADD COLUMN IF NOT EXISTS explore_item_id CHAR(36) NULL");
+            log.info("Ensured user_votes.explore_item_id column exists.");
+        } catch (Exception e) {
+            log.warn("Could not add user_votes.explore_item_id (it might already exist): {}", e.getMessage());
+        }
     }
 }

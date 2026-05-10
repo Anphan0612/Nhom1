@@ -7,7 +7,9 @@ import java.util.UUID;
 public interface UserVoteRepository {
     UserVote save(UserVote userVote);
     Optional<UserVote> findByUserIdAndSharedContentId(UUID userId, UUID sharedContentId);
+    Optional<UserVote> findByUserIdAndExploreItemId(UUID userId, UUID exploreItemId);
     void delete(UserVote userVote);
     int countBySharedContentId(UUID sharedContentId);
+    int countByExploreItemId(UUID exploreItemId);
     void flush();
 }
