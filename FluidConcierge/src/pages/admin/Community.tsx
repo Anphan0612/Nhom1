@@ -1,6 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { communityApi } from '../../services/api';
+import type { SharedContentResponse } from '../../types/trip';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Community() {
+  const [pendingItems, setPendingItems] = useState<SharedContentResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [archivedCount, setArchivedCount] = useState(0);
+
+  useEffect(() => {
+    fetchPending();
+  }, []);
+
+  const fetchPending = async () => {
+    try {
+      setLoading(true);
+      const data = await communityApi.getAdminPending();
+      setPendingItems(data);
+    } catch (error) {
+      console.error('Failed to fetch pending content:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (id: string) => {
+    try {
+      await communityApi.approveContent(id);
+      setPendingItems(prev => prev.filter(item => item.id !== id));
+      setArchivedCount(prev => prev + 1);
+    } catch (error) {
+      alert('Phê duyệt thất bại');
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    if (!window.confirm('Bạn có chắc chắn muốn từ chối bài viết này?')) return;
+    try {
+      await communityApi.rejectContent(id);
+      setPendingItems(prev => prev.filter(item => item.id !== id));
+      setArchivedCount(prev => prev + 1);
+    } catch (error) {
+      alert('Từ chối thất bại');
+    }
+  };
+
+  const parseContent = (jsonStr: string) => {
+    try {
+      return JSON.parse(jsonStr);
+    } catch {
+      return {};
+    }
+  };
+
   return (
     <div className="p-8 max-w-[1600px] mx-auto text-slate-200">
       {/* Header */}
@@ -9,7 +61,7 @@ export default function Community() {
           <h1 className="text-3xl font-bold text-white mb-2">Community Moderation</h1>
           <div className="flex items-center gap-3">
             <span className="bg-red-500/20 text-red-400 text-xs font-bold px-3 py-1 rounded-full">
-              24 Pending Items
+              {pendingItems.length} Pending Items
             </span>
             <span className="text-slate-400 font-medium">Queue management & content safety</span>
           </div>
@@ -62,114 +114,110 @@ export default function Community() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Main Feed (Left) */}
         <div className="xl:col-span-2 space-y-6">
-          {/* Card 1 */}
-          <div className="bg-[#151923] rounded-3xl p-6 border border-slate-800/60 ring-1 ring-sky-500/20 shadow-[0_0_15px_rgba(14,165,233,0.05)] relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-sky-500 rounded-l-3xl"></div>
-            
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-4">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Elena" alt="Elena" className="w-12 h-12 rounded-full bg-slate-800 border-2 border-slate-700" />
-                <div>
-                  <h3 className="font-bold text-white text-lg">Elena Vance</h3>
-                  <p className="text-sm text-slate-400 font-medium">Foodie Pioneer &bull; 9.4k Impact</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="inline-block bg-slate-800/50 text-slate-300 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full mb-1">
-                  Dining Review
-                </span>
-                <p className="text-xs text-slate-500 font-bold uppercase">2 minutes ago</p>
-              </div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-[#151923] rounded-3xl border border-slate-800/60">
+              <span className="material-symbols-outlined text-5xl text-slate-700 animate-spin mb-4">progress_activity</span>
+              <p className="text-slate-500 font-bold">Đang tải dữ liệu kiểm duyệt...</p>
             </div>
-
-            <div className="mb-4">
-              <div className="flex text-yellow-500 text-sm mb-2">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-              </div>
-              <h4 className="text-xl font-bold text-white mb-2">Hidden Gem in Kyoto: Kura Sushi</h4>
-              <p className="text-slate-400 text-sm leading-relaxed line-clamp-2">
-                The service was impeccable and the seasonal omakase was life-changing. Make sure to try the bluefin tuna belly with gold leaf. The atmosphere is quiet and...
-              </p>
+          ) : pendingItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-[#151923] rounded-3xl border border-slate-800/60">
+              <span className="material-symbols-outlined text-6xl text-slate-800 mb-4">check_circle</span>
+              <p className="text-slate-400 font-bold text-lg">Tất cả bài viết đã được kiểm duyệt!</p>
+              <p className="text-slate-600">Hiện không có yêu cầu nào mới.</p>
             </div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {pendingItems.map((item) => {
+                const details = parseContent(item.content);
+                return (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    className="bg-[#151923] rounded-3xl p-6 border border-slate-800/60 ring-1 ring-sky-500/20 shadow-[0_0_15px_rgba(14,165,233,0.05)] relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 left-0 w-1 h-full bg-sky-500 rounded-l-3xl"></div>
+                    
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-4">
+                        <img 
+                          src={item.user.name ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.user.name}` : "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin"} 
+                          alt={item.user.name} 
+                          className="w-12 h-12 rounded-full bg-slate-800 border-2 border-slate-700" 
+                        />
+                        <div>
+                          <h3 className="font-bold text-white text-lg">{item.user.name || 'Anonymous'}</h3>
+                          <p className="text-sm text-slate-400 font-medium">{item.user.email}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-block bg-slate-800/50 text-slate-300 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full mb-1">
+                          {item.type.replace('_', ' ')}
+                        </span>
+                        <p className="text-xs text-slate-500 font-bold uppercase">
+                          {new Date(item.createdAt).toLocaleString('vi-VN')}
+                        </p>
+                      </div>
+                    </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-slate-800/50">
-              <div className="flex items-center gap-4 text-sm font-semibold text-slate-400">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[18px]">photo_library</span> 4 Photos</span>
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[18px]">flag</span> 0 Reports</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button className="px-5 py-2 rounded-xl text-sm font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
-                  View Details
-                </button>
-                <button className="w-16 h-10 rounded-xl bg-red-500/20 text-red-500 hover:bg-red-500/30 transition-colors flex items-center justify-center">
-                   <div className="w-4 h-1 bg-red-500 rounded-full"></div>
-                </button>
-                <button className="px-6 py-2 rounded-xl bg-[#00B4D8] hover:bg-sky-400 text-white text-sm font-bold shadow-lg shadow-sky-500/20 transition-colors">
-                  Approve
-                </button>
-              </div>
-            </div>
-          </div>
+                    <div className="mb-4">
+                      <div className="flex text-yellow-500 text-sm mb-2">
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${i < item.rating ? 1 : 0}` }}>star</span>
+                        ))}
+                      </div>
+                      <h4 className="text-xl font-bold text-white mb-2">{item.description || 'No Title'}</h4>
+                      
+                      {item.imageUrls && item.imageUrls.length > 0 && (
+                        <div className="flex gap-2 mb-3">
+                          {item.imageUrls.slice(0, 3).map((url, i) => (
+                            <img key={i} src={`http://localhost:8090${url}`} className="w-1/4 h-24 object-cover rounded-xl" alt="Content" />
+                          ))}
+                          {item.imageUrls.length > 3 && (
+                            <div className="w-1/4 h-24 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 font-bold text-lg">
+                              +{item.imageUrls.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      )}
 
-          {/* Card 2 */}
-          <div className="bg-[#151923] rounded-3xl p-6 border border-slate-800/60 relative">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-slate-300 font-bold border-2 border-slate-600">
-                  MK
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-lg">Marcus Kane</h3>
-                  <p className="text-sm text-slate-400 font-medium">World Traveler &bull; 4.2k Impact</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="inline-block bg-slate-800/50 text-slate-300 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full mb-1">
-                  Trip Itinerary
-                </span>
-                <p className="text-xs text-slate-500 font-bold uppercase">1 hour ago</p>
-              </div>
-            </div>
+                      <p className="text-slate-400 text-sm leading-relaxed">
+                        {details.tip && <span className="block italic text-emerald-400/80 mb-1">Tip: {details.tip}</span>}
+                        {details.specificLocation && <span className="block text-sky-400/80 mb-1 italic">Location: {details.specificLocation}</span>}
+                      </p>
+                    </div>
 
-            <div className="mb-4">
-              <h4 className="text-xl font-bold text-white mb-3">10 Days in the Swiss Alps: Summer Edition</h4>
-              
-              <div className="flex gap-2 mb-3">
-                <img src="https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=300&h=200&fit=crop" className="w-1/4 h-24 object-cover rounded-xl" alt="Alps 1" />
-                <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&h=200&fit=crop" className="w-1/4 h-24 object-cover rounded-xl" alt="Alps 2" />
-                <img src="https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=300&h=200&fit=crop" className="w-1/4 h-24 object-cover rounded-xl" alt="Alps 3" />
-                <div className="w-1/4 h-24 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 font-bold text-lg">
-                  +5
-                </div>
-              </div>
-
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Detailed hiking guide covering Zermatt, Lauterbrunnen, and Grindelwald...
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-slate-800/50">
-              <div className="flex items-center gap-4 text-sm font-semibold text-slate-400">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[18px]">location_on</span> 8 Locations</span>
-                <span className="flex items-center gap-1 text-red-400"><span className="material-symbols-outlined text-[18px]">warning</span> 1 Report</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button className="px-5 py-2 rounded-xl text-sm font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
-                  View Details
-                </button>
-                <button className="w-16 h-10 rounded-xl bg-red-500/20 text-red-500 hover:bg-red-500/30 transition-colors flex items-center justify-center">
-                  <div className="w-4 h-1 bg-red-500 rounded-full"></div>
-                </button>
-                <button className="px-6 py-2 rounded-xl bg-[#00B4D8] hover:bg-sky-400 text-white text-sm font-bold shadow-lg shadow-sky-500/20 transition-colors">
-                  Approve
-                </button>
-              </div>
-            </div>
-          </div>
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-800/50">
+                      <div className="flex items-center gap-4 text-sm font-semibold text-slate-400">
+                        <span className="flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[18px]">
+                            {item.type === 'TRIP' ? 'flight_takeoff' : 'local_activity'}
+                          </span> 
+                          ID: {item.refId.substring(0, 8)}...
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => handleReject(item.id)}
+                          className="w-16 h-10 rounded-xl bg-red-500/20 text-red-500 hover:bg-red-500/30 transition-colors flex items-center justify-center"
+                        >
+                          <span className="material-symbols-outlined">close</span>
+                        </button>
+                        <button 
+                          onClick={() => handleApprove(item.id)}
+                          className="px-6 py-2 rounded-xl bg-[#00B4D8] hover:bg-sky-400 text-white text-sm font-bold shadow-lg shadow-sky-500/20 transition-colors"
+                        >
+                          Approve
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          )}
 
           {/* Trending Section */}
           <div className="pt-6">
@@ -303,7 +351,7 @@ export default function Community() {
                   <span className="material-symbols-outlined text-slate-400">hourglass_empty</span>
                   <span className="text-slate-300 font-semibold">Pending</span>
                 </div>
-                <span className="text-sky-400 font-bold text-lg">24</span>
+                <span className="text-sky-400 font-bold text-lg">{pendingItems.length}</span>
               </div>
             </div>
 

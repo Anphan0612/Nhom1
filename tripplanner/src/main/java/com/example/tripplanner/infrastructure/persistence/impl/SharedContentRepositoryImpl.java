@@ -53,4 +53,16 @@ public class SharedContentRepositoryImpl implements SharedContentRepository {
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<SharedContent> findAllPending() {
+        return jpaRepository.findByStatusOrderByCreatedAtDesc(com.example.tripplanner.domain.model.ShareStatus.PENDING).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        jpaRepository.deleteById(id);
+    }
 }

@@ -39,9 +39,17 @@ const ShareModal: React.FC<ShareModalProps> = ({
     submitShare
   } = useShareExperience({ type, refId, onSuccess, onClose });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    submitShare();
+    await submitShare();
+    setIsSuccess(true);
+    setTimeout(() => {
+      setIsSuccess(false);
+      onSuccess();
+      onClose();
+    }, 3000);
   };
 
   return (
@@ -75,7 +83,24 @@ const ShareModal: React.FC<ShareModalProps> = ({
                 {subtitle && <p className="text-emerald-600/70 text-sm mt-1">{subtitle}</p>}
               </div>
 
-              <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1">
+              <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1 relative">
+                {isSuccess && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute inset-0 z-20 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-6"
+                  >
+                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+                      <span className="material-symbols-outlined text-4xl text-emerald-600 animate-bounce">check_circle</span>
+                    </div>
+                    <h3 className="text-2xl font-black text-emerald-950 mb-2">Đã gửi yêu cầu!</h3>
+                    <p className="text-emerald-800 font-medium leading-relaxed">
+                      Cảm ơn bạn đã chia sẻ trải nghiệm! <br/>
+                      Bài viết của bạn đang được **kiểm duyệt** để đảm bảo an toàn cộng đồng. 
+                      Vui lòng chờ nhé!
+                    </p>
+                  </motion.div>
+                )}
 
 
                 {type === 'EXPLORE_ITEM' && (

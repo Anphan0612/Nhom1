@@ -23,6 +23,8 @@ public class CommunityController {
     private final GetTrendingContentUseCase getTrendingContentUseCase;
     private final AddCommentUseCase addCommentUseCase;
     private final GetCommentsUseCase getCommentsUseCase;
+    private final GetPendingContentUseCase getPendingContentUseCase;
+    private final ModerateContentUseCase moderateContentUseCase;
     private final GetExploreItemReviewsUseCase getExploreItemReviewsUseCase;
 
     @PostMapping(value = "/share", consumes = {"multipart/form-data"})
@@ -89,5 +91,23 @@ public class CommunityController {
     @GetMapping("/explore/{id}/reviews")
     public ResponseEntity<List<SharedContentResponse>> getExploreItemReviews(@PathVariable UUID id) {
         return ResponseEntity.ok(getExploreItemReviewsUseCase.execute(id));
+    }
+
+    // --- Admin Endpoints ---
+
+    @GetMapping("/admin/pending")
+    public ResponseEntity<List<SharedContentResponse>> getPending() {
+        return ResponseEntity.ok(getPendingContentUseCase.execute());
+    }
+
+    @PostMapping("/admin/{id}/approve")
+    public ResponseEntity<SharedContentResponse> approve(@PathVariable UUID id) {
+        return ResponseEntity.ok(moderateContentUseCase.execute(id, com.example.tripplanner.domain.model.ShareStatus.PUBLISHED));
+    }
+
+    @PostMapping("/admin/{id}/reject")
+    public ResponseEntity<Void> reject(@PathVariable UUID id) {
+        moderateContentUseCase.execute(id, com.example.tripplanner.domain.model.ShareStatus.REJECTED);
+        return ResponseEntity.noContent().build();
     }
 }

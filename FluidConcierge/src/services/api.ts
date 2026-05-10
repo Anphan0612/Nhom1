@@ -20,7 +20,7 @@ import type {
 
 // Base API client pointing at Spring Boot backend
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8081/api/v1',
+  baseURL: 'http://localhost:8090/api/v1',
 });
 
 // Add interceptor to include JWT token in requests
@@ -167,5 +167,15 @@ export const communityApi = {
 
   getExploreItemReviews: (id: string): Promise<SharedContentResponse[]> =>
     apiClient.get(`/community/explore/${id}/reviews`).then(r => r.data),
+
+  // Admin endpoints
+  getAdminPending: (): Promise<SharedContentResponse[]> =>
+    apiClient.get('/community/admin/pending').then(r => r.data),
+
+  approveContent: (id: string): Promise<SharedContentResponse> =>
+    apiClient.post(`/community/admin/${id}/approve`).then(r => r.data),
+
+  rejectContent: (id: string): Promise<void> =>
+    apiClient.post(`/community/admin/${id}/reject`).then(r => r.data),
 };
 

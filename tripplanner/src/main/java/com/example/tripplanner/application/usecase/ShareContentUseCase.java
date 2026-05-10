@@ -89,7 +89,7 @@ public class ShareContentUseCase {
                 .cost(request.getCost())
                 .duration(request.getDuration())
                 .imageUrls(imageUrls)
-                .status(ShareStatus.PUBLISHED)
+                .status(ShareStatus.PENDING)
                 .build();
 
         SharedContent saved = sharedContentRepository.save(content);

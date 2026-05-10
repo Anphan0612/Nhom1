@@ -13,4 +13,6 @@ public interface SharedContentRepository {
     List<SharedContent> getTrending(ShareType type, int limit);
     boolean existsByUser_IdAndRefIdAndType(UUID userId, UUID refId, ShareType type);
     List<SharedContent> findByRefId(UUID refId);
+    List<SharedContent> findAllPending();
+    void deleteById(UUID id);
 }
