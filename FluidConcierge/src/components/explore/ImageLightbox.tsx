@@ -107,7 +107,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ images, startIndex, isOpe
                   x: { type: "spring", stiffness: 300, damping: 30 },
                   opacity: { duration: 0.2 }
                 }}
-                src={images[currentIndex].startsWith('http') ? images[currentIndex] : `http://localhost:8081${images[currentIndex]}`}
+                src={images[currentIndex].startsWith('http') ? images[currentIndex] : images[currentIndex]}
                 alt={`Lightbox ${currentIndex}`}
                 className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
               />
