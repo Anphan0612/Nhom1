@@ -1,5 +1,6 @@
 package com.example.tripplanner.application.usecase;
 
+import com.example.tripplanner.application.dto.ai.RetryStatsDto;
 import com.example.tripplanner.domain.model.SharedContent;
 import com.example.tripplanner.domain.model.User;
 import com.example.tripplanner.domain.model.UserStatus;
@@ -7,7 +8,7 @@ import com.example.tripplanner.domain.model.ExploreItem;
 import com.example.tripplanner.domain.model.ShareStatus;
 import com.example.tripplanner.application.dto.ModerationStatsResponse;
 import com.example.tripplanner.application.dto.ContributorResponse;
-import com.example.tripplanner.application.dto.RetryStatsDto;
+
 
 import java.util.List;
 import java.util.UUID;

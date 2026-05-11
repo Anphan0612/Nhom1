@@ -1,8 +1,6 @@
 package com.example.tripplanner.infrastructure.config;
 
-import com.example.tripplanner.domain.model.Role;
-import com.example.tripplanner.domain.model.UserStatus;
-import com.example.tripplanner.application.port.PasswordEncoder;
+import com.example.tripplanner.application.security.PasswordEncoder;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

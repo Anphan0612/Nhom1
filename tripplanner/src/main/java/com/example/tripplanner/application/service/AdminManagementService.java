@@ -2,15 +2,17 @@ package com.example.tripplanner.application.service;
 
 import com.example.tripplanner.application.dto.ModerationStatsResponse;
 import com.example.tripplanner.application.dto.ContributorResponse;
-import com.example.tripplanner.application.dto.RetryStatsDto;
+
+import com.example.tripplanner.application.dto.ai.RetryStatsDto;
 import com.example.tripplanner.application.usecase.AdminManagementUseCase;
 import com.example.tripplanner.domain.model.*;
 import com.example.tripplanner.domain.port.SharedContentRepository;
 import com.example.tripplanner.domain.port.UserRepository;
 import com.example.tripplanner.domain.port.AiLogRepository;
 import com.example.tripplanner.domain.port.ExploreRepository;
-import com.example.tripplanner.infrastructure.persistence.JpaSharedContentRepository;
-import com.example.tripplanner.infrastructure.persistence.UserEntity;
+
+import com.example.tripplanner.infrastructure.persistence.entity.UserEntity;
+import com.example.tripplanner.infrastructure.persistence.repository.JpaSharedContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

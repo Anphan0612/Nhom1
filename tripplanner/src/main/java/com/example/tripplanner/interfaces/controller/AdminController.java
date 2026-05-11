@@ -1,6 +1,9 @@
 package com.example.tripplanner.interfaces.controller;
 
 import com.example.tripplanner.application.dto.*;
+import com.example.tripplanner.application.dto.ai.RetryStatsDto;
+import com.example.tripplanner.application.dto.auth.UserResponse;
+import com.example.tripplanner.application.dto.community.SharedContentResponse;
 import com.example.tripplanner.application.mapper.SharedContentMapper;
 import com.example.tripplanner.application.mapper.TripMapper;
 import com.example.tripplanner.application.usecase.AdminManagementUseCase;
