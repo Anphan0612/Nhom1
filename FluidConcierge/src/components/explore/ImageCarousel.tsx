@@ -66,7 +66,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, className = "h-48
             x: { type: "spring", stiffness: 300, damping: 30 },
             opacity: { duration: 0.2 }
           }}
-          src={images[currentIndex].startsWith('http') ? images[currentIndex] : images[currentIndex]}
+          src={images[currentIndex].startsWith('http') ? images[currentIndex] : `http://localhost:8090${images[currentIndex]}`}
           alt={`Slide ${currentIndex}`}
           className="absolute inset-0 w-full h-full object-cover cursor-pointer"
           onClick={handleImageClick}

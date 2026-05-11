@@ -11,52 +11,84 @@ export default function AdminLayout() {
     navigate('/login');
   };
 
+  const navItems = [
+    { name: 'Dashboard', path: '/admin/dashboard', icon: 'grid_view' },
+    { name: 'Users', path: '/admin/users', icon: 'group' },
+    { name: 'Places', path: '/admin/places', icon: 'location_on' },
+    { name: 'Community', path: '/admin/community', icon: 'chat_bubble' },
+    { name: 'AI Config', path: '/admin/config', icon: 'psychology' },
+  ];
+
   return (
-    <div className="bg-[#101415] text-on-surface flex min-h-screen font-body antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
-      {/* Admin Canvas */}
-      <main className="flex-1 flex flex-col min-h-screen">
-        <header className="flex items-center justify-between px-8 sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl h-16 border-b border-slate-800 shadow-sm font-['Plus_Jakarta_Sans'] font-medium">
-          <div className="flex items-center gap-6">
-            <span className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="material-symbols-outlined text-sky-500">fluid</span>
-              TripPlanner Admin
-            </span>
-            <nav className="hidden lg:flex items-center gap-1 ml-8">
-              <NavLink to="/" className="px-4 py-2 text-slate-400 hover:text-white transition-colors text-sm">App</NavLink>
-              <NavLink to="/admin/users" className={({ isActive }) => `px-4 py-2 rounded-full text-sm transition-all ${isActive ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20' : 'text-slate-400 hover:text-white'}`}>Users</NavLink>
-              <NavLink to="/admin/places" className={({ isActive }) => `px-4 py-2 rounded-full text-sm transition-all ${isActive ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20' : 'text-slate-400 hover:text-white'}`}>Places</NavLink>
-              <NavLink to="/admin/config" className={({ isActive }) => `px-4 py-2 rounded-full text-sm transition-all ${isActive ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20' : 'text-slate-400 hover:text-white'}`}>AI Config</NavLink>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="hover:bg-slate-800 rounded-full p-2 active:scale-95 transition-transform">
-              <span className="material-symbols-outlined text-slate-400">notifications</span>
-            </button>
-            <button className="hover:bg-slate-800 rounded-full p-2 active:scale-95 transition-transform">
-              <span className="material-symbols-outlined text-slate-400">chat_bubble</span>
-            </button>
-            <button className="bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold text-sm active:scale-95 transition-transform">
-              New Itinerary
-            </button>
-            <div className="flex items-center gap-3 ml-2 pl-4 border-l border-slate-800">
-               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-white leading-tight">{user?.name || 'Admin'}</p>
-                <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{user?.role || 'Full Access'}</p>
-              </div>
-              <button 
-                onClick={handleLogout}
-                className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-500/10 transition-all active:scale-95 border border-slate-800"
-                title="Logout"
-              >
-                <span className="material-symbols-outlined">logout</span>
-              </button>
+    <div className="flex min-h-screen bg-[#111318] text-white font-['Plus_Jakarta_Sans']">
+      {/* Sidebar */}
+      <aside className="w-64 bg-[#0B0D12] border-r border-slate-800 flex flex-col justify-between py-6">
+        <div>
+          {/* Logo Section */}
+          <div className="px-6 flex items-center gap-3 mb-10">
+            <div className="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center">
+              <span className="material-symbols-outlined text-white">handshake</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold leading-tight">Admin Portal</h1>
+              <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Fluid Concierge System</p>
             </div>
           </div>
-        </header>
 
-        <div className="flex-1 overflow-auto relative">
-          <Outlet />
+          {/* Navigation */}
+          <nav className="flex flex-col gap-1 px-4">
+            {navItems.map((item) => {
+              const isActive = location.pathname.startsWith(item.path);
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold transition-all ${
+                    isActive 
+                      ? 'bg-[#1C2333] text-sky-400' 
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  }`}
+                >
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>
+                    {item.icon}
+                  </span>
+                  {item.name}
+                </NavLink>
+              );
+            })}
+          </nav>
         </div>
+
+        {/* Bottom Section */}
+        <div className="px-4">
+          <button className="w-full bg-[#00B4D8] hover:bg-sky-400 text-white font-bold py-3 rounded-2xl flex items-center justify-center gap-2 mb-6 shadow-lg shadow-sky-500/20 transition-all active:scale-95">
+            <span className="material-symbols-outlined">add</span>
+            New Entry
+          </button>
+          
+          <div className="flex items-center gap-3 px-2">
+            <img 
+              src={user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"} 
+              alt="Avatar" 
+              className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700"
+            />
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-bold truncate">{user?.name || 'Alex Sterling'}</p>
+              <p className="text-xs text-slate-400 truncate">Global Moderator</p>
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="text-slate-500 hover:text-red-400 transition-colors"
+            >
+              <span className="material-symbols-outlined text-xl">logout</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 h-screen overflow-y-auto">
+        <Outlet />
       </main>
     </div>
   );

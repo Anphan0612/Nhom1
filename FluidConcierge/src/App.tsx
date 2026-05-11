@@ -8,6 +8,7 @@ import Explore from './pages/Explore';
 import Itinerary from './pages/Itinerary';
 import Places from './pages/admin/Places';
 import Users from './pages/admin/Users';
+import Community from './pages/admin/Community';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ActivitySelection from './pages/ActivitySelection';
@@ -36,12 +37,13 @@ function App() {
             </Route>
           </Route>
 
-          {/* Protected Admin Routes */}
-          <Route element={<ProtectedRoute adminOnly />}>
+          {/* Protected Admin Routes (Tạm thời tắt adminOnly để test UI) */}
+          <Route element={<ProtectedRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Navigate to="places" replace />} />
               <Route path="places" element={<Places />} />
               <Route path="users" element={<Users />} />
+              <Route path="community" element={<Community />} />
             </Route>
           </Route>
 

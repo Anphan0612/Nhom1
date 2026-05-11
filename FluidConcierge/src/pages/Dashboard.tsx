@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { tripApi } from '../services/api';
 import type { TripResponse } from '../types/trip';
 import { useAuth } from '../context/AuthContext';
+import ShareModal from '../components/ShareModal';
 
 const STATUS_LABELS: Record<string, string> = {
   PLANNING:   'Đang lên kế hoạch',
@@ -60,8 +61,6 @@ function TripCardSkeleton() {
 }
 
 // ── Main component ──────────────────────────────────────────────────────────
-
-import ShareModal from '../components/ShareModal';
 
 export default function Dashboard() {
   const navigate = useNavigate();

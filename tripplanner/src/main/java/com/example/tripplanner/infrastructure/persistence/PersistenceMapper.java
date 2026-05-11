@@ -21,7 +21,9 @@ public class PersistenceMapper {
                 .password(domain.getPassword())
                 .name(domain.getName())
                 .role(domain.getRole())
+                .status(domain.getStatus())
                 .createdAt(domain.getCreatedAt())
+                .lastActiveAt(domain.getLastActiveAt())
                 .build();
     }
 
@@ -34,7 +36,9 @@ public class PersistenceMapper {
                 .password(entity.getPassword())
                 .name(entity.getName())
                 .role(entity.getRole())
+                .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
+                .lastActiveAt(entity.getLastActiveAt())
                 .build();
     }
 

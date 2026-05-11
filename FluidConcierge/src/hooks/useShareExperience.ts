@@ -64,9 +64,6 @@ export const useShareExperience = ({ type, refId, onSuccess, onClose }: UseShare
       }
 
       await communityApi.shareContentFormData(formData);
-
-      onSuccess();
-      onClose();
     } catch (error: any) {
       console.error('Failed to share:', error);
       const errorMessage = error.response?.data?.message || 'Chia sẻ thất bại, vui lòng thử lại!';

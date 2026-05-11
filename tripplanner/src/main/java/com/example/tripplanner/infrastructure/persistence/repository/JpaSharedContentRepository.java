@@ -20,7 +20,17 @@ public interface JpaSharedContentRepository extends JpaRepository<SharedContentE
     boolean existsByUser_IdAndRefIdAndType(UUID userId, UUID refId, ShareType type);
 
     List<SharedContentEntity> findByRefIdOrderByCreatedAtDesc(UUID refId);
+    List<SharedContentEntity> findByStatusOrderByCreatedAtDesc(com.example.tripplanner.domain.model.ShareStatus status);
 
     List<SharedContentEntity> findByUser(UserEntity user);
+    List<SharedContentEntity> findByUser_Id(UUID userId);
+
+    long countByStatus(com.example.tripplanner.domain.model.ShareStatus status);
+
+    @Query("SELECT s.user, COUNT(s) as count FROM SharedContentEntity s " +
+           "WHERE s.status = 'PUBLISHED' " +
+           "GROUP BY s.user " +
+           "ORDER BY count DESC")
+    List<Object[]> findTopContributors(Pageable pageable);
 }
 

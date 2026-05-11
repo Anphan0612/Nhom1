@@ -36,6 +36,10 @@ public class ShareContentUseCase {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new IllegalStateException("Tài khoản đang bị khóa hoặc đã bị xóa, không thể thực hiện thao tác này.");
+        }
+
         // Store files and get URLs
         List<String> imageUrls = java.util.Collections.emptyList();
         if (images != null && !images.isEmpty()) {
@@ -89,7 +93,7 @@ public class ShareContentUseCase {
                 .cost(request.getCost())
                 .duration(request.getDuration())
                 .imageUrls(imageUrls)
-                .status(ShareStatus.PUBLISHED)
+                .status(ShareStatus.PENDING)
                 .build();
 
         SharedContent saved = sharedContentRepository.save(content);
