@@ -10,6 +10,7 @@ import com.example.tripplanner.application.dto.ai.*;
 
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ import lombok.Data;
 @Builder
 public class AiServiceParseRequest {
     private String text;
-    private String user_id;
+    @JsonProperty("user_id")
+    private String userId;
 }
 

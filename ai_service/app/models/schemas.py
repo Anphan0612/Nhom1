@@ -17,6 +17,9 @@ class EntityResponse(BaseModel):
     start_date: Optional[str] = None
     end_date: Optional[str] = None
 
+    class Config:
+        extra = "ignore"
+
 class ParseResponse(BaseModel):
     intent: str
     entities: EntityResponse

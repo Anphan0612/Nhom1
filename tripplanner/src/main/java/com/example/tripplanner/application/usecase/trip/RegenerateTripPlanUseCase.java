@@ -31,7 +31,6 @@ public class RegenerateTripPlanUseCase {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + tripId));
 
-        itineraryRepository.deleteByTripId(tripId);
         trip.getItineraries().clear();
         if (trip.getCandidates() != null) trip.getCandidates().clear();
 

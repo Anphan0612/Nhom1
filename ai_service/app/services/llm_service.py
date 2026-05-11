@@ -114,7 +114,7 @@ Return JSON ONLY:
                     "model": model,
                     "messages": messages,
                     "temperature": 0.2,
-                    "max_tokens": 2000,
+                    "max_tokens": 4000,
                     "stream": False
                 }
 
@@ -189,7 +189,7 @@ Return JSON ONLY:
                     "model": model,
                     "messages": messages,
                     "temperature": 0.2,
-                    "max_tokens": 500,
+                    "max_tokens": 2000,
                     "stream": False
                 }
 

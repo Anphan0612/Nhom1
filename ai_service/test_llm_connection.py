@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
 async def verify_llm():
     print("\n" + "="*50)
-    print("🚀 TESTING REAL LLM CONNECTION")
+    print("STARTING REAL LLM CONNECTION TEST")
     print("="*50 + "\n")
     
     # Test 1: Entity Repair
@@ -23,9 +23,9 @@ async def verify_llm():
     print(f"Vibe       : {repaired.get('vibe')}")
     
     if "[LLM Repaired]" in str(repaired.get('destination')):
-        print("\n❌ LLM failed or used mock fallback.")
+        print("\nFAIL: LLM failed or used mock fallback.")
     else:
-        print("\n✅ LLM call successful! (Real data received)")
+        print("\nSUCCESS: LLM call successful! (Real data received)")
 
     print("\n" + "-"*50 + "\n")
 
