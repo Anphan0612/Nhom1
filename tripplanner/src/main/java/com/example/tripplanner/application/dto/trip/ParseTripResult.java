@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import java.util.List;
 
+// output khi parse xong
 @Data
 @Builder
 public class ParseTripResult {

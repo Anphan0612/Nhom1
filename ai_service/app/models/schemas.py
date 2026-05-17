@@ -1,10 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 
+#Input nhận từ Java backend (text, user_id)
 class ParseRequest(BaseModel):
     text: str = Field(..., example="đi đà lạt 3 ngày 2 đêm budget 2tr chill")
     user_id: Optional[str] = None
 
+# JSON output chứa các entities
 class EntityResponse(BaseModel):
     destination: Optional[str] = None
     duration_days: Optional[int] = None
@@ -21,6 +23,7 @@ class EntityResponse(BaseModel):
     class Config:
         extra = "ignore"
 
+# Wrapper chứa intent, entities, confidence, source
 class ParseResponse(BaseModel):
     intent: str
     entities: EntityResponse
@@ -46,6 +49,7 @@ class DailyItinerary(BaseModel):
 class ItineraryResponse(BaseModel):
     days: List[DailyItinerary]
 
+#Output đầy đủ khi gọi /plan-trip (cả lịch trình)
 class TripPlanResponse(BaseModel):
     intent: str
     entities: EntityResponse

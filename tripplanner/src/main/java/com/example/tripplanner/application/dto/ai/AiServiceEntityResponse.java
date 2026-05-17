@@ -24,3 +24,6 @@ public class AiServiceEntityResponse {
     private boolean destinationIsSuggested;
 }
 
+// @JsonPropery dùng để map dữ liệu từ Python sang Java
+// ví dụ: @JsonProperty("destination_is_suggested") -> destinationIsSuggested
+// @JsonPropery(value = "destination_is_suggested")

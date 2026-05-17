@@ -19,12 +19,12 @@ services:
     container_name: tripplanner-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root1234}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-1234}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-trip}
       MYSQL_USER: ${MYSQL_USER:-tripuser}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-trippass123}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-1234}
     ports:
-      - "${MYSQL_PORT:-3308}:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -52,7 +52,7 @@ services:
       # Database
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-trip}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-tripuser}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-trippass123}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-1234}
       # JPA
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "false"
