@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/community/trending", "/api/v1/community/explore/**", "/api/v1/community/*/comments", "/api/v1/community/uploads/**", "/api/v1/community/upload").permitAll()
                         .requestMatchers("/api/v1/admin/**", "/api/v1/community/admin/**").hasRole("ADMIN")
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
