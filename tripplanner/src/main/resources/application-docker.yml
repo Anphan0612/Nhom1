@@ -10,8 +10,11 @@ spring:
     url: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:trip}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: ${MYSQL_USER:tripuser}
     password: ${MYSQL_PASSWORD:trippass123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
+    hibernate:
+      ddl-auto: update
     show-sql: false
 
 ai-service:
